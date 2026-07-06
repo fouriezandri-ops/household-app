@@ -15,9 +15,10 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (kDebugMode) {
-    // Local Firestore/Storage emulators (see firebase.json) — swap
-    // firebase_options.dart for a real project via `flutterfire configure`
-    // and drop this block when moving off local dev.
+    // Local Firestore/Storage emulators (see firebase.json) for `flutter run`
+    // during development. Release builds (`flutter build apk --release`,
+    // used for the two real phones) skip this block automatically — they
+    // go straight to whatever project is configured in firebase_options.dart.
     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
     await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
   }
