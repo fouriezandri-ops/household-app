@@ -1,0 +1,30 @@
+name: Build Android APK
+
+# Builds a sideloadable release APK on GitHub's own runners. This exists
+# because the app's usual dev environment has no Android SDK / no network
+# access to Google's SDK repository — GitHub Actions runners come with the
+# Android SDK preinstalled, so this is the easiest way to get an installable
+# APK without setting up Android tooling locally.
+on:
+  workflow_dispatch: {}
+  push: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.4"
+          channel: "stable"
+
+      - run: flutter pub get
+
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: household-app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
