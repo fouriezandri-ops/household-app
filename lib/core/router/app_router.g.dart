@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goRouterHash() => r'7312fda7e3db835544ce68794d6bc8cc3683bf5b';
+String _$goRouterHash() => r'31c7a914071540989feccca0b6e29d6aaf6eedd8';
 
 /// Kept alive for the app's lifetime — recreating the router on every
 /// provider rebuild would drop the current navigation stack.

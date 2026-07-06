@@ -10,6 +10,8 @@ import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/screens/pin_gate_screen.dart';
 import '../../features/grocery_list/presentation/screens/grocery_list_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/household/presentation/providers/current_member_provider.dart';
+import '../../features/household/presentation/screens/pick_member_screen.dart';
 import '../../features/packing_list/presentation/screens/packing_trip_detail_screen.dart';
 import '../../features/packing_list/presentation/screens/packing_trips_screen.dart';
 import '../../features/products_to_buy/presentation/screens/products_to_buy_screen.dart';
@@ -33,6 +35,7 @@ class _GoRouterRefreshNotifier extends ChangeNotifier {
 GoRouter goRouter(Ref ref) {
   final refreshNotifier = _GoRouterRefreshNotifier();
   ref.listen(authControllerProvider, (_, _) => refreshNotifier.refresh());
+  ref.listen(currentMemberControllerProvider, (_, _) => refreshNotifier.refresh());
   ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
@@ -46,13 +49,24 @@ GoRouter goRouter(Ref ref) {
 
       final isUnlocked = authStatus == AuthStatus.unlocked;
       final isGoingToPinGate = state.matchedLocation == '/pin';
+      if (!isUnlocked) {
+        return isGoingToPinGate ? null : '/pin';
+      }
 
-      if (!isUnlocked && !isGoingToPinGate) return '/pin';
-      if (isUnlocked && isGoingToPinGate) return '/home';
+      final memberAsync = ref.read(currentMemberControllerProvider);
+      if (!memberAsync.hasValue) return null; // still loading from secure storage
+      final selectedMemberUid = memberAsync.value;
+      final isGoingToPickMember = state.matchedLocation == '/pick-member';
+
+      if (selectedMemberUid == null) {
+        return isGoingToPickMember ? null : '/pick-member';
+      }
+      if (isGoingToPinGate || isGoingToPickMember) return '/home';
       return null;
     },
     routes: [
       GoRoute(path: '/pin', builder: (context, state) => const PinGateScreen()),
+      GoRoute(path: '/pick-member', builder: (context, state) => const PickMemberScreen()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             ScaffoldWithNavBar(navigationShell: navigationShell),

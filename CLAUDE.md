@@ -46,6 +46,19 @@ but today it's just for the two of us.
    confirmation, this was the working assumption in wireframes.
 5. **Move between lists**: implemented as swipe-left (reveals move + delete
    actions) or long-press (context menu) on any list row.
+6. **Firebase project**: this dev environment can't do the interactive
+   Google login `flutterfire configure` needs, so there's no real Firebase
+   project yet. The app runs against the local Firestore/Storage emulators
+   (`firebase.json`, `demo-household-app` project ID in
+   `lib/firebase_options.dart`) until you run `flutterfire configure`
+   yourself against a real project — see milestone 6 below.
+7. **Per-device identity without auth**: no Firebase Auth means no
+   `request.auth.uid` to derive `addedBy`/`assignedTo`/`memberUids` from.
+   Household and member IDs are fixed constants (`lib/core/constants/
+   household_constants.dart`) so both partners' installs converge on the
+   same `/households/default` doc with no pairing step, and each device
+   picks "who it is" once via a local-only (not synced) screen after the
+   PIN gate, storing the choice in secure storage.
 
 ## Firestore schema (confirmed — see full detail below)
 
@@ -105,11 +118,16 @@ Moving an item (e.g. Wishlist → Products to Buy):
    category, priority).
 3. Append `{ listType, movedAt: now }` to `history` — nothing is overwritten.
 
-**Composite indexes needed:**
-- `items`: `householdId` + `listType` + `completed` + `dateAdded` (desc)
-- `items`: `householdId` + `listType` + `priority`
-- `items`: `householdId` + `listType` + `category`
-- `trips`: `householdId` + `startDate` (desc)
+**Composite indexes needed** (`firestore.indexes.json`; no `householdId` field
+in the index definitions themselves — `items`/`trips` are subcollections
+under `/households/{householdId}`, so the parent path already scopes every
+query and a collection-scoped composite index is enough):
+- `items`: `listType` + `completed` + `dateAdded` (desc) — for the "not
+  purchased" filter chip, milestone 14
+- `items`: `listType` + `priority`
+- `items`: `listType` + `category`
+- `trips`: single-field `startDate` (desc) ordering only — Firestore
+  auto-indexes this, no composite index needed
 
 **Security rules (open, per decision #2 above):**
 ```
@@ -162,7 +180,38 @@ service cloud.firestore {
    run on a device/emulator/Chrome — this environment has no Android/iOS/
    Chrome toolchain installed, only the Dart/Flutter SDK for analysis and
    testing.
-6. ⬜ Shared database setup (Firebase project, repository pattern base classes)
+6. ✅ **Shared database setup — done.** No real Firebase project (decision
+   #6 above) — wired to the local emulators instead: `firebase_core`,
+   `cloud_firestore`, `firebase_storage` added; `lib/firebase_options.dart`
+   is a placeholder `demo-household-app` config; `main.dart` calls
+   `Firebase.initializeApp()` then points Firestore/Storage at
+   `localhost:8080`/`:9199` in debug builds; `firebase.json` +
+   `firestore.indexes.json` + `storage.rules` added at repo root for
+   `firebase emulators:start`.
+   Domain entities (`lib/core/domain/entities/`): `Item` (+ `ItemDetails`,
+   `HistoryEntry`, `ListType`, `Priority`), `Trip`, `Household`,
+   `HouseholdMember` — hand-written `fromFirestore`/`toFirestore`, no
+   codegen. Repository pattern (`lib/core/data/`): a generic
+   `FirestoreRepository<T>` base (CRUD + `watchAll`) built on
+   `withConverter`, with `ItemsRepository` (`watchByListType`,
+   `moveToList` — updates `listType` + optional `details` + appends to
+   `history`) and `TripsRepository` extending it, plus a standalone
+   `HouseholdRepository` (spans the `households` and `users` top-level
+   collections; `ensureSeeded()` idempotently creates the fixed household +
+   two members per decision #7). Riverpod providers wiring these in
+   `lib/core/providers/firestore_providers.dart`.
+   Identity feature (`lib/features/household/`): a local-only
+   `MemberSelectionRepository` (secure storage, mirrors the PIN
+   repository's shape) + `CurrentMemberController`, and a `PickMemberScreen`
+   wired into the router (`/pick-member`, gated after `/pin` — see
+   `lib/core/router/app_router.dart`'s expanded redirect).
+   Tests: `fake_cloud_firestore`-backed repository tests (CRUD, list-type
+   filtering/ordering, move-between-lists, idempotent seeding) plus a
+   controller test for member selection, all under `test/core/data/` and
+   `test/features/household/`. `flutter analyze` and `flutter test` both
+   pass. Not verified: the emulators actually running end-to-end against
+   the compiled app (no Android/iOS/Chrome toolchain in this environment —
+   same limitation noted in milestone 5).
 7. ⬜ Grocery List
 8. ⬜ Packing List
 9. ⬜ Admin List
@@ -183,6 +232,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 5 is done. Awaiting explicit approval to start milestone 6 (shared
-database setup — Firebase project, repository pattern base classes), per the
-ground rule.
+Milestone 6 is done. Awaiting explicit approval to start milestone 7
+(Grocery List), per the ground rule.
