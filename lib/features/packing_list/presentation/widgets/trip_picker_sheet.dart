@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../providers/packing_list_providers.dart';
 
 /// Picks an existing trip, returning its ID (or null if the sheet was
@@ -45,7 +46,7 @@ class _TripPickerSheet extends ConsumerWidget {
         ),
         error: (error, stackTrace) => Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('Something went wrong: $error'),
+          child: AsyncErrorView(error: error),
         ),
       ),
     );

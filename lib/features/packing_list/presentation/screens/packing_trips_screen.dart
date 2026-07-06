@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../providers/packing_list_providers.dart';
 import '../widgets/add_edit_trip_sheet.dart';
 
@@ -35,7 +36,7 @@ class PackingTripsScreen extends ConsumerWidget {
                 },
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+        error: (error, stackTrace) => AsyncErrorView(error: error),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAddEditTripSheet(context),

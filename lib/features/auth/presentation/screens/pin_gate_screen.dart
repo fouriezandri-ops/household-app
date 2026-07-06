@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../../domain/entities/auth_status.dart';
 import '../providers/auth_providers.dart';
 import '../widgets/pin_dots.dart';
@@ -97,7 +98,7 @@ class _PinGateScreenState extends ConsumerState<PinGateScreen> {
         child: authAsync.when(
           data: _buildContent,
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+          error: (error, stackTrace) => AsyncErrorView(error: error),
         ),
       ),
     );

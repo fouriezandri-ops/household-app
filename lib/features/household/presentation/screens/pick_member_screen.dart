@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../providers/current_member_provider.dart';
 
 /// Shown once, after the PIN gate, on a device that hasn't picked a
@@ -36,7 +37,7 @@ class PickMemberScreen extends ConsumerWidget {
               .toList(),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+        error: (error, stackTrace) => AsyncErrorView(error: error),
       ),
     );
   }

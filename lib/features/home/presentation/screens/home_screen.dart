@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/entities/list_type.dart';
 import '../../../../core/presentation/list_type_icons.dart';
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../../../../core/providers/firestore_providers.dart';
 import '../../domain/list_stats.dart';
 import '../widgets/quick_add_sheet.dart';
@@ -41,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+        error: (error, stackTrace) => AsyncErrorView(error: error),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showQuickAddSheet(context),

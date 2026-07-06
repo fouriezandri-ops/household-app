@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/domain/entities/item.dart';
 import '../../../../core/domain/entities/item_filter.dart';
 import '../../../../core/domain/entities/list_type.dart';
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../../../../core/presentation/widgets/item_filter_chip_row.dart';
 import '../../../../core/presentation/widgets/item_list_tile.dart';
 import '../../../../core/providers/list_filter_providers.dart';
@@ -59,7 +60,7 @@ class PackingTripDetailScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+        error: (error, stackTrace) => AsyncErrorView(error: error),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showAddEditPackingItemSheet(context, tripId: tripId),

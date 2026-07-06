@@ -6,6 +6,7 @@ import '../../domain/entities/item_filter.dart';
 import '../../domain/entities/list_type.dart';
 import '../../providers/firestore_providers.dart';
 import '../../providers/list_filter_providers.dart';
+import 'async_error_view.dart';
 import 'item_filter_chip_row.dart';
 
 /// Shared screen for the four lists whose items are scoped by `listType`
@@ -61,7 +62,7 @@ class ItemListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+        error: (error, stackTrace) => AsyncErrorView(error: error),
       ),
       floatingActionButton: FloatingActionButton(onPressed: onAddPressed, child: const Icon(Icons.add)),
     );

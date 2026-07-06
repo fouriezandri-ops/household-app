@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../../../../core/providers/firestore_providers.dart';
 import '../providers/search_providers.dart';
 import '../widgets/search_result_tile.dart';
@@ -37,7 +38,7 @@ class SearchScreen extends ConsumerWidget {
                       );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => Center(child: Text('Something went wrong: $error')),
+              error: (error, stackTrace) => AsyncErrorView(error: error),
             ),
     );
   }
