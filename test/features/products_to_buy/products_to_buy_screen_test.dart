@@ -7,8 +7,8 @@ import 'package:household_app/core/data/repositories/items_repository.dart';
 import 'package:household_app/core/domain/entities/item.dart';
 import 'package:household_app/core/domain/entities/list_type.dart';
 import 'package:household_app/core/providers/firestore_providers.dart';
-import 'package:household_app/features/grocery_list/presentation/screens/grocery_list_screen.dart';
 import 'package:household_app/features/household/presentation/providers/current_member_provider.dart';
+import 'package:household_app/features/products_to_buy/presentation/screens/products_to_buy_screen.dart';
 
 class _FakeCurrentMemberController extends CurrentMemberController {
   @override
@@ -32,11 +32,11 @@ void main() {
     itemsRepository = ItemsRepository(firestore: firestore, householdId: 'test-household');
   });
 
-  testWidgets('adding an item via the FAB shows it in the list', (tester) async {
+  testWidgets('adding a product via the FAB shows it with its store and price', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides(),
-        child: const MaterialApp(home: GroceryListScreen()),
+        child: const MaterialApp(home: ProductsToBuyScreen()),
       ),
     );
     await tester.pumpAndSettle();
@@ -44,42 +44,33 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Item'), 'Milk');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Product'), 'Headphones');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Store'), 'Amazon');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Price'), '199.99');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Milk'), findsOneWidget);
+    expect(find.text('Headphones'), findsOneWidget);
+    expect(find.textContaining('\$199.99'), findsOneWidget);
+    expect(find.textContaining('Amazon'), findsOneWidget);
   });
 
-  testWidgets('tapping the checkbox marks the item completed', (tester) async {
+  testWidgets('the "Not bought" chip hides completed items', (tester) async {
     await itemsRepository.add(
-      Item(id: '', listType: ListType.grocery, title: 'Eggs', addedBy: 'member-1', dateAdded: DateTime.now()),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: overrides(),
-        child: const MaterialApp(home: GroceryListScreen()),
+      Item(
+        id: '',
+        listType: ListType.productsToBuy,
+        title: 'Headphones',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
       ),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byType(Checkbox));
-    await tester.pumpAndSettle();
-
-    final items = await itemsRepository.watchByListType(ListType.grocery).first;
-    expect(items.single.completed, isTrue);
-  });
-
-  testWidgets('the "Not purchased" chip hides completed items', (tester) async {
-    await itemsRepository.add(
-      Item(id: '', listType: ListType.grocery, title: 'Milk', addedBy: 'member-1', dateAdded: DateTime.now()),
     );
     await itemsRepository.add(
       Item(
         id: '',
-        listType: ListType.grocery,
-        title: 'Eggs',
+        listType: ListType.productsToBuy,
+        title: 'Blender',
         addedBy: 'member-1',
         dateAdded: DateTime.now(),
         completed: true,
@@ -89,50 +80,41 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides(),
-        child: const MaterialApp(home: GroceryListScreen()),
+        child: const MaterialApp(home: ProductsToBuyScreen()),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Milk'), findsOneWidget);
-    expect(find.text('Eggs'), findsOneWidget);
+    expect(find.text('Headphones'), findsOneWidget);
+    expect(find.text('Blender'), findsOneWidget);
 
-    await tester.tap(find.text('Not purchased'));
+    await tester.tap(find.text('Not bought'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Milk'), findsOneWidget);
-    expect(find.text('Eggs'), findsNothing);
+    expect(find.text('Headphones'), findsOneWidget);
+    expect(find.text('Blender'), findsNothing);
   });
 
-  testWidgets('editing an item can clear a previously-set category', (tester) async {
-    final id = await itemsRepository.add(
+  testWidgets('an item with an imageUrl shows a thumbnail', (tester) async {
+    await itemsRepository.add(
       Item(
         id: '',
-        listType: ListType.grocery,
-        title: 'Milk',
+        listType: ListType.productsToBuy,
+        title: 'Headphones',
         addedBy: 'member-1',
         dateAdded: DateTime.now(),
-        category: 'Dairy',
+        imageUrl: 'https://example.com/headphones.jpg',
       ),
     );
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides(),
-        child: const MaterialApp(home: GroceryListScreen()),
+        child: const MaterialApp(home: ProductsToBuyScreen()),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    await tester.tap(find.text('Milk'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.widgetWithText(TextFormField, 'Category'), '');
-    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
-
-    final saved = await itemsRepository.getById(id);
-    expect(saved!.category, isNull);
+    expect(find.byType(Image), findsOneWidget);
   });
 }

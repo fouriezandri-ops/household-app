@@ -62,41 +62,60 @@ class _AddEditPackingItemSheetState
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final repository = ref.read(itemsRepositoryProvider);
-    final category = _categoryController.text.trim().isEmpty
-        ? null
-        : _categoryController.text.trim();
-    final notes = _notesController.text.trim().isEmpty
-        ? null
-        : _notesController.text.trim();
+    try {
+      final repository = ref.read(itemsRepositoryProvider);
+      final category = _categoryController.text.trim().isEmpty
+          ? null
+          : _categoryController.text.trim();
+      final notes = _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim();
 
-    final existing = widget.existing;
-    if (existing == null) {
-      final addedBy = await ref.read(currentMemberControllerProvider.future);
-      await repository.add(
-        Item(
-          id: '',
-          listType: ListType.packing,
-          title: _titleController.text.trim(),
-          addedBy: addedBy ?? '',
-          dateAdded: DateTime.now(),
-          category: category,
-          notes: notes,
-          details: ItemDetails(tripId: widget.tripId),
-        ),
-      );
-    } else {
-      await repository.set(
-        existing.id,
-        existing.copyWith(
-          title: _titleController.text.trim(),
-          category: category,
-          notes: notes,
-        ),
-      );
+      final existing = widget.existing;
+      if (existing == null) {
+        final addedBy = await ref.read(currentMemberControllerProvider.future);
+        await repository.add(
+          Item(
+            id: '',
+            listType: ListType.packing,
+            title: _titleController.text.trim(),
+            addedBy: addedBy ?? '',
+            dateAdded: DateTime.now(),
+            category: category,
+            notes: notes,
+            details: ItemDetails(tripId: widget.tripId),
+          ),
+        );
+      } else {
+        await repository.set(
+          existing.id,
+          Item(
+            id: existing.id,
+            listType: existing.listType,
+            title: _titleController.text.trim(),
+            addedBy: existing.addedBy,
+            dateAdded: existing.dateAdded,
+            category: category,
+            notes: notes,
+            priority: existing.priority,
+            completed: existing.completed,
+            imageUrl: existing.imageUrl,
+            dateCompleted: existing.dateCompleted,
+            details: existing.details,
+            history: existing.history,
+          ),
+        );
+      }
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not save: $error')));
+        setState(() => _isSaving = false);
+      }
     }
-
-    if (mounted) Navigator.of(context).pop();
   }
 
   @override

@@ -40,34 +40,11 @@ class Item {
   final ItemDetails details;
   final List<HistoryEntry> history;
 
-  Item copyWith({
-    String? title,
-    String? notes,
-    String? category,
-    Priority? priority,
-    bool? completed,
-    String? imageUrl,
-    DateTime? dateCompleted,
-    ItemDetails? details,
-    List<HistoryEntry>? history,
-    ListType? listType,
-  }) {
-    return Item(
-      id: id,
-      listType: listType ?? this.listType,
-      title: title ?? this.title,
-      addedBy: addedBy,
-      dateAdded: dateAdded,
-      notes: notes ?? this.notes,
-      category: category ?? this.category,
-      priority: priority ?? this.priority,
-      completed: completed ?? this.completed,
-      imageUrl: imageUrl ?? this.imageUrl,
-      dateCompleted: dateCompleted ?? this.dateCompleted,
-      details: details ?? this.details,
-      history: history ?? this.history,
-    );
-  }
+  // Deliberately no `copyWith`: a hand-written one that follows the usual
+  // `field: field ?? this.field` pattern can't ever clear a nullable field
+  // back to null (edit screens construct a fresh `Item(...)` instead, with
+  // every field explicit — see the add/edit sheets for grocery/packing/
+  // admin/products for the pattern).
 
   static Item fromFirestore(Map<String, dynamic> data, String id) {
     return Item(

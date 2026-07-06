@@ -45,6 +45,8 @@ dependencies:
   cloud_firestore: ^5.6.12
   firebase_storage: ^12.4.10
   flutter_slidable: ^4.0.3
+  image_picker: ^1.2.3
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

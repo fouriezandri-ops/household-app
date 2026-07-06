@@ -77,12 +77,34 @@ class ItemListTile extends ConsumerWidget {
         ],
       ),
       child: ListTile(
-        leading: Checkbox(
-          value: item.completed,
-          onChanged: (value) => ref.read(itemsRepositoryProvider).updateFields(item.id, {
-            'completed': value ?? false,
-            'dateCompleted': (value ?? false) ? Timestamp.fromDate(DateTime.now()) : null,
-          }),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (item.imageUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.network(
+                  item.imageUrl!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Icon(Icons.broken_image_outlined),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Checkbox(
+              value: item.completed,
+              onChanged: (value) => ref.read(itemsRepositoryProvider).updateFields(item.id, {
+                'completed': value ?? false,
+                'dateCompleted': (value ?? false) ? Timestamp.fromDate(DateTime.now()) : null,
+              }),
+            ),
+          ],
         ),
         title: Text(
           item.title,

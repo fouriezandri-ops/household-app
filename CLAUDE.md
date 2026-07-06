@@ -283,7 +283,47 @@ service cloud.firestore {
    chip, deep-link auto-open) under `test/features/admin_todo/`. `flutter
    analyze` and `flutter test` both pass (33/33). Not verified: real
    device/emulator run, same toolchain limitation as prior milestones.
-10. ⬜ Products To Buy
+10. ✅ **Products To Buy — done.** First list to use `imageUrl`, so this is
+   where decision #1 (manual photo upload, Firebase Storage) actually gets
+   built: `lib/core/data/image_upload_service.dart`
+   (`ImageUploadService` interface + `FirebaseImageUploadService`, storing
+   at `item_images/{itemId}.jpg`) and `lib/core/providers/
+   storage_providers.dart`. `ItemListTile` (core, shared) grew an optional
+   thumbnail next to the checkbox when `item.imageUrl` is set. Also added
+   `url_launcher` so the website-URL field has an "open" button.
+   `lib/features/products_to_buy/`: real screen + add/edit sheet (store,
+   website URL, price, desired quantity, category, notes, photo — camera
+   or gallery via `image_picker`, with preview/remove before saving). A
+   new item's ID is pre-generated client-side (`collection.doc().id`,
+   never written) so the photo can upload to its final path before the
+   Firestore doc exists.
+   **Two real bugs found while building/testing this and fixed across all
+   four sheets (grocery/packing/admin/products):**
+   1. `Item.copyWith(field: null)` could never actually clear a nullable
+      field back to null — the usual `field ?? this.field` pattern just
+      falls back to the old value. Every edit path that tried to clear a
+      category/notes/priority was silently failing to. Fixed by deleting
+      `copyWith` entirely and having each edit path construct a fresh
+      `Item(...)` with every field explicit; locked in with a regression
+      test (`test/features/grocery_list/grocery_list_screen_test.dart`:
+      "editing an item can clear a previously-set category").
+   2. None of the four sheets reset `_isSaving` or surfaced an error if
+      `_save()` actually threw — a real failure would leave the spinner
+      running forever. Caught because the products sheet unconditionally
+      read `imageUploadServiceProvider` (→ real `FirebaseStorage.instance`)
+      even when no photo was touched, which throws with no Firebase app
+      initialized in tests, hanging `pumpAndSettle`. Fixed by making that
+      read lazy (only touches Storage when a photo was actually
+      added/removed) and wrapping all four `_save()` methods in
+      try/catch/finally-equivalent handling that resets `_isSaving` and
+      shows a SnackBar on failure.
+   Tests under `test/features/products_to_buy/`: add with store/price,
+   filter chip, thumbnail rendering. `flutter analyze` and `flutter test`
+   both pass (37/37). Not verified: an actual photo pick/upload — that
+   needs `image_picker`'s platform channel, which isn't mocked here, so
+   the picker flow itself is untested (only the save path with no photo,
+   and rendering an already-set `imageUrl`). Same device/emulator
+   limitation as prior milestones otherwise.
 11. ⬜ Wishlist
 12. ⬜ Move-between-lists functionality
 13. ⬜ Search
@@ -300,5 +340,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 9 is done. Awaiting explicit approval to start milestone 10
-(Products To Buy), per the ground rule.
+Milestone 10 is done. Awaiting explicit approval to start milestone 11
+(Wishlist), per the ground rule.

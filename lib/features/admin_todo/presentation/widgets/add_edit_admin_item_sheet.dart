@@ -69,52 +69,69 @@ class _AddEditAdminItemSheetState extends ConsumerState<AddEditAdminItemSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final repository = ref.read(itemsRepositoryProvider);
-    final category = _categoryController.text.trim().isEmpty
-        ? null
-        : _categoryController.text.trim();
-    final notes = _notesController.text.trim().isEmpty
-        ? null
-        : _notesController.text.trim();
-    final description = _descriptionController.text.trim().isEmpty
-        ? null
-        : _descriptionController.text.trim();
-    final details = ItemDetails(
-      description: description,
-      dueDate: _dueDate,
-      assignedTo: _assignedTo,
-    );
+    try {
+      final repository = ref.read(itemsRepositoryProvider);
+      final category = _categoryController.text.trim().isEmpty
+          ? null
+          : _categoryController.text.trim();
+      final notes = _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim();
+      final description = _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim();
+      final details = ItemDetails(
+        description: description,
+        dueDate: _dueDate,
+        assignedTo: _assignedTo,
+      );
 
-    final existing = widget.existing;
-    if (existing == null) {
-      final addedBy = await ref.read(currentMemberControllerProvider.future);
-      await repository.add(
-        Item(
-          id: '',
-          listType: ListType.admin,
-          title: _titleController.text.trim(),
-          addedBy: addedBy ?? '',
-          dateAdded: DateTime.now(),
-          category: category,
-          notes: notes,
-          priority: _priority,
-          details: details,
-        ),
-      );
-    } else {
-      await repository.set(
-        existing.id,
-        existing.copyWith(
-          title: _titleController.text.trim(),
-          category: category,
-          notes: notes,
-          priority: _priority,
-          details: details,
-        ),
-      );
+      final existing = widget.existing;
+      if (existing == null) {
+        final addedBy = await ref.read(currentMemberControllerProvider.future);
+        await repository.add(
+          Item(
+            id: '',
+            listType: ListType.admin,
+            title: _titleController.text.trim(),
+            addedBy: addedBy ?? '',
+            dateAdded: DateTime.now(),
+            category: category,
+            notes: notes,
+            priority: _priority,
+            details: details,
+          ),
+        );
+      } else {
+        await repository.set(
+          existing.id,
+          Item(
+            id: existing.id,
+            listType: existing.listType,
+            title: _titleController.text.trim(),
+            addedBy: existing.addedBy,
+            dateAdded: existing.dateAdded,
+            category: category,
+            notes: notes,
+            priority: _priority,
+            completed: existing.completed,
+            imageUrl: existing.imageUrl,
+            dateCompleted: existing.dateCompleted,
+            details: details,
+            history: existing.history,
+          ),
+        );
+      }
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not save: $error')));
+        setState(() => _isSaving = false);
+      }
     }
-
-    if (mounted) Navigator.of(context).pop();
   }
 
   String _formatDate(DateTime date) {

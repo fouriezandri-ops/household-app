@@ -66,41 +66,52 @@ class _AddEditTripSheetState extends ConsumerState<AddEditTripSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
-    final repository = ref.read(tripsRepositoryProvider);
-    final destination = _destinationController.text.trim().isEmpty
-        ? null
-        : _destinationController.text.trim();
+    try {
+      final repository = ref.read(tripsRepositoryProvider);
+      final destination = _destinationController.text.trim().isEmpty
+          ? null
+          : _destinationController.text.trim();
 
-    final existing = widget.existing;
-    if (existing == null) {
-      final createdBy = await ref.read(currentMemberControllerProvider.future);
-      await repository.add(
-        Trip(
-          id: '',
-          name: _nameController.text.trim(),
-          destination: destination,
-          startDate: _startDate,
-          endDate: _endDate,
-          createdBy: createdBy ?? '',
-          createdAt: DateTime.now(),
-        ),
-      );
-    } else {
-      await repository.set(
-        existing.id,
-        Trip(
-          id: existing.id,
-          name: _nameController.text.trim(),
-          destination: destination,
-          startDate: _startDate,
-          endDate: _endDate,
-          createdBy: existing.createdBy,
-          createdAt: existing.createdAt,
-        ),
-      );
+      final existing = widget.existing;
+      if (existing == null) {
+        final createdBy = await ref.read(
+          currentMemberControllerProvider.future,
+        );
+        await repository.add(
+          Trip(
+            id: '',
+            name: _nameController.text.trim(),
+            destination: destination,
+            startDate: _startDate,
+            endDate: _endDate,
+            createdBy: createdBy ?? '',
+            createdAt: DateTime.now(),
+          ),
+        );
+      } else {
+        await repository.set(
+          existing.id,
+          Trip(
+            id: existing.id,
+            name: _nameController.text.trim(),
+            destination: destination,
+            startDate: _startDate,
+            endDate: _endDate,
+            createdBy: existing.createdBy,
+            createdAt: existing.createdAt,
+          ),
+        );
+      }
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not save: $error')));
+        setState(() => _isSaving = false);
+      }
     }
-
-    if (mounted) Navigator.of(context).pop();
   }
 
   String _formatDate(DateTime? date) {
