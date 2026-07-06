@@ -27,10 +27,15 @@ class MoveItemSheet extends ConsumerWidget {
   Future<void> _moveTo(BuildContext context, WidgetRef ref, ListType target) async {
     if (target == ListType.packing) {
       final tripId = await showTripPickerSheet(context);
-      if (tripId == null) return;
+      if (tripId == null || !context.mounted) return;
       await ref
           .read(itemsRepositoryProvider)
-          .moveToList(item.id, newListType: target, newDetails: ItemDetails(tripId: tripId));
+          .moveToList(
+            item.id,
+            newListType: target,
+            newDetails: ItemDetails(tripId: tripId),
+            newPriority: item.priorityForListType(target),
+          );
     } else {
       await ref
           .read(itemsRepositoryProvider)
@@ -38,6 +43,7 @@ class MoveItemSheet extends ConsumerWidget {
             item.id,
             newListType: target,
             newDetails: item.details.filterForListType(target),
+            newPriority: item.priorityForListType(target),
           );
     }
     if (context.mounted) Navigator.of(context).pop();

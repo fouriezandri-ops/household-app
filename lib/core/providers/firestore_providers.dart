@@ -7,6 +7,7 @@ import '../data/repositories/household_repository.dart';
 import '../data/repositories/items_repository.dart';
 import '../data/repositories/trips_repository.dart';
 import '../domain/entities/item.dart';
+import '../domain/entities/list_type.dart';
 
 part 'firestore_providers.g.dart';
 
@@ -49,4 +50,12 @@ Stream<Item?> itemById(Ref ref, String itemId) {
 @riverpod
 Stream<List<Item>> allItems(Ref ref) {
   return ref.watch(itemsRepositoryProvider).watchAll();
+}
+
+/// Items on a single list — one family provider shared by Grocery, Admin,
+/// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+/// `packingItemsProvider`, so it isn't part of this family).
+@riverpod
+Stream<List<Item>> itemsByListType(Ref ref, ListType listType) {
+  return ref.watch(itemsRepositoryProvider).watchByListType(listType);
 }

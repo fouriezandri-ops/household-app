@@ -56,6 +56,29 @@ void main() {
     expect(find.textContaining('Amazon'), findsOneWidget);
   });
 
+  testWidgets('a non-numeric price is rejected instead of silently discarded', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: overrides(),
+        child: const MaterialApp(home: ProductsToBuyScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Product'), 'Headphones');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Price'), r'$19.99');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter a valid number'), findsOneWidget);
+    // The sheet is still open — nothing was saved.
+    expect(find.widgetWithText(TextFormField, 'Product'), findsOneWidget);
+  });
+
   testWidgets('the "Not bought" chip hides completed items', (tester) async {
     await itemsRepository.add(
       Item(

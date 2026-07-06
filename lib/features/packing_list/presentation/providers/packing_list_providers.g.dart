@@ -278,25 +278,5 @@ class _PackingItemsProviderElement
   String get tripId => (origin as PackingItemsProvider).tripId;
 }
 
-String _$packingFilterControllerHash() =>
-    r'a39b131748b8b8c02eff8b9b2d935c957f04d31f';
-
-/// See also [PackingFilterController].
-@ProviderFor(PackingFilterController)
-final packingFilterControllerProvider =
-    AutoDisposeNotifierProvider<
-      PackingFilterController,
-      ItemFilterState
-    >.internal(
-      PackingFilterController.new,
-      name: r'packingFilterControllerProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$packingFilterControllerHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-typedef _$PackingFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

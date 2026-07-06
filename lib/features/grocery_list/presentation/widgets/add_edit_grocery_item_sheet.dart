@@ -94,24 +94,15 @@ class _AddEditGroceryItemSheetState
           ),
         );
       } else {
-        await repository.set(
-          existing.id,
-          Item(
-            id: existing.id,
-            listType: existing.listType,
-            title: _titleController.text.trim(),
-            addedBy: existing.addedBy,
-            dateAdded: existing.dateAdded,
-            category: category,
-            notes: notes,
-            priority: existing.priority,
-            completed: existing.completed,
-            imageUrl: existing.imageUrl,
-            dateCompleted: existing.dateCompleted,
-            details: details,
-            history: existing.history,
-          ),
-        );
+        // A partial update — not a full-document `set()` — so a concurrent
+        // change to fields this form doesn't touch (completed, dateCompleted,
+        // history) from the other household member isn't silently reverted.
+        await repository.updateFields(existing.id, {
+          'title': _titleController.text.trim(),
+          'category': category,
+          'notes': notes,
+          'details': details.toFirestore(),
+        });
       }
 
       if (mounted) Navigator.of(context).pop();

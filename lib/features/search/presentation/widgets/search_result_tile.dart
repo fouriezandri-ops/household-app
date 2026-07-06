@@ -22,7 +22,14 @@ class SearchResultTile extends StatelessWidget {
       case ListType.grocery:
         showAddEditGroceryItemSheet(context, existing: item);
       case ListType.packing:
-        showAddEditPackingItemSheet(context, tripId: item.details.tripId!, existing: item);
+        final tripId = item.details.tripId;
+        if (tripId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("This item is missing its trip and can't be opened.")),
+          );
+          return;
+        }
+        showAddEditPackingItemSheet(context, tripId: tripId, existing: item);
       case ListType.admin:
         showAddEditAdminItemSheet(context, existing: item);
       case ListType.productsToBuy:

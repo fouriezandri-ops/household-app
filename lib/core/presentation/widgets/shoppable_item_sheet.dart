@@ -201,24 +201,16 @@ class _ShoppableItemSheetState extends ConsumerState<ShoppableItemSheet> {
           ),
         );
       } else {
-        await repository.set(
-          id,
-          Item(
-            id: id,
-            listType: existing.listType,
-            title: _titleController.text.trim(),
-            addedBy: existing.addedBy,
-            dateAdded: existing.dateAdded,
-            category: category,
-            notes: notes,
-            priority: existing.priority,
-            completed: existing.completed,
-            imageUrl: imageUrl,
-            dateCompleted: existing.dateCompleted,
-            details: details,
-            history: existing.history,
-          ),
-        );
+        // A partial update — see add_edit_grocery_item_sheet.dart for why
+        // this isn't a full-document `set()`. imageUrl is included since,
+        // unlike the other sheets, this form can change it.
+        await repository.updateFields(id, {
+          'title': _titleController.text.trim(),
+          'category': category,
+          'notes': notes,
+          'imageUrl': imageUrl,
+          'details': details.toFirestore(),
+        });
       }
 
       if (mounted) Navigator.of(context).pop();
@@ -308,8 +300,12 @@ class _ShoppableItemSheetState extends ConsumerState<ShoppableItemSheet> {
                   Expanded(
                     child: TextFormField(
                       controller: _priceController,
-                      decoration: const InputDecoration(labelText: 'Price'),
+                      decoration: const InputDecoration(labelText: 'Price', prefixText: r'$ '),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return null;
+                        return double.tryParse(value.trim()) == null ? 'Enter a valid number' : null;
+                      },
                     ),
                   ),
                   if (widget.showDesiredQuantity) ...[

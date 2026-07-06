@@ -32,6 +32,29 @@ void main() {
     itemsRepository = ItemsRepository(firestore: firestore, householdId: 'test-household');
   });
 
+  testWidgets('a unit set without a quantity still shows in the subtitle', (tester) async {
+    await itemsRepository.add(
+      Item(
+        id: '',
+        listType: ListType.grocery,
+        title: 'Flour',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
+        details: const ItemDetails(unit: 'bag'),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: overrides(),
+        child: const MaterialApp(home: GroceryListScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('bag'), findsOneWidget);
+  });
+
   testWidgets('adding an item via the FAB shows it in the list', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -198,4 +221,45 @@ void main() {
     final saved = await itemsRepository.getById(id);
     expect(saved!.category, isNull);
   });
+
+  testWidgets(
+    'saving an edit does not revert a completion change made while the sheet was open',
+    (tester) async {
+      final id = await itemsRepository.add(
+        Item(
+          id: '',
+          listType: ListType.grocery,
+          title: 'Milk',
+          addedBy: 'member-1',
+          dateAdded: DateTime.now(),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: overrides(),
+          child: const MaterialApp(home: GroceryListScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Open the edit sheet — `existing` is now captured with completed=false.
+      await tester.tap(find.text('Milk'));
+      await tester.pumpAndSettle();
+
+      // Simulate the other household member checking it off on their own
+      // device while this sheet is still open.
+      await itemsRepository.updateFields(id, {'completed': true});
+
+      // Finish editing an unrelated field and save.
+      await tester.enterText(find.widgetWithText(TextFormField, 'Category'), 'Dairy');
+      await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      final saved = await itemsRepository.getById(id);
+      expect(saved!.category, 'Dairy');
+      expect(saved.completed, isTrue); // not reverted by the edit-save
+    },
+  );
 }

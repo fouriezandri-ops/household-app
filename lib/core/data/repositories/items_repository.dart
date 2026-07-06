@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/item.dart';
 import '../../domain/entities/list_type.dart';
+import '../../domain/entities/priority.dart';
 import '../firestore_repository.dart';
 
 /// All five lists live in one `/households/{householdId}/items` collection,
@@ -37,16 +38,25 @@ class ItemsRepository extends FirestoreRepository<Item> {
         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
-  /// Moves [itemId] to [newListType], optionally patching `details` at the
-  /// same time (the move-between-lists feature decides which fields carry
-  /// over), and appends a [HistoryEntry] — never overwriting prior history.
+  /// Moves [itemId] to [newListType], patching `details` and `priority` at
+  /// the same time (the move-between-lists feature decides — via
+  /// [Item.filterForListType]/[Item.priorityForListType] — which fields
+  /// carry over and which get cleared), and appends a [HistoryEntry] —
+  /// never overwriting prior history.
+  ///
+  /// [newPriority] is always written (including `null`, to clear it) rather
+  /// than only-if-non-null, since every move must explicitly decide whether
+  /// priority still applies — leaving it unspecified is how a stale
+  /// priority ends up stuck on a list that never shows it.
   Future<void> moveToList(
     String itemId, {
     required ListType newListType,
     ItemDetails? newDetails,
+    Priority? newPriority,
   }) {
     return collection.doc(itemId).update({
       'listType': newListType.value,
+      'priority': newPriority?.name,
       if (newDetails != null) 'details': newDetails.toFirestore(),
       'history': FieldValue.arrayUnion([
         HistoryEntry(listType: newListType, movedAt: DateTime.now()).toFirestore(),

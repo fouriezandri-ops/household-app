@@ -46,6 +46,15 @@ class Item {
   // every field explicit — see the add/edit sheets for grocery/packing/
   // admin/products for the pattern).
 
+  /// `priority` only has UI meaning on the Admin list (only its add/edit
+  /// sheet sets or displays it) even though the field lives at the top
+  /// level rather than in [ItemDetails] — like
+  /// [ItemDetails.filterForListType], this is applied on every move so a
+  /// priority set on an Admin task doesn't linger, unseen and unclearable,
+  /// on a list that never shows it.
+  Priority? priorityForListType(ListType listType) =>
+      listType == ListType.admin ? priority : null;
+
   static Item fromFirestore(Map<String, dynamic> data, String id) {
     return Item(
       id: id,

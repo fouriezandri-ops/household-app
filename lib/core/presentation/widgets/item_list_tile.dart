@@ -7,6 +7,7 @@ import '../../../features/household/presentation/providers/current_member_provid
 import '../../../features/move_between_lists/presentation/widgets/move_item_sheet.dart';
 import '../../domain/entities/item.dart';
 import '../../providers/firestore_providers.dart';
+import '../../providers/storage_providers.dart';
 
 /// Common row for any list: a completion checkbox (strikethrough + greyed
 /// when done, per decision #4), an "added by" chip, swipe-left to reveal
@@ -47,6 +48,16 @@ class ItemListTile extends ConsumerWidget {
     );
     if (confirmed ?? false) {
       await ref.read(itemsRepositoryProvider).delete(item.id);
+      if (item.imageUrl != null) {
+        // Best-effort: the item is already gone from the user's
+        // perspective, so a Storage hiccup here shouldn't surface as a
+        // failed delete — it would just leave the blob to clean up later.
+        try {
+          await ref.read(imageUploadServiceProvider).deleteItemImage(item.id);
+        } catch (_) {
+          // Ignored — see comment above.
+        }
+      }
     }
   }
 

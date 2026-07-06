@@ -84,4 +84,33 @@ void main() {
 
     expect(find.text('Edit wishlist item'), findsOneWidget);
   });
+
+  testWidgets('tapping a packing result with no tripId shows an error instead of crashing', (
+    tester,
+  ) async {
+    await itemsRepository.add(
+      Item(
+        id: '',
+        listType: ListType.packing,
+        title: 'Orphaned packing item',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
+        // No details.tripId — shouldn't normally happen, but nothing in the
+        // type system prevents it (e.g. a future move-to-packing bug).
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(overrides: overrides(), child: const MaterialApp(home: SearchScreen())),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'orphaned');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Orphaned packing item'));
+    await tester.pumpAndSettle();
+
+    expect(find.text("This item is missing its trip and can't be opened."), findsOneWidget);
+  });
 }

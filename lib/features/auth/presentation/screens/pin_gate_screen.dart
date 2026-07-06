@@ -24,14 +24,14 @@ class _PinGateScreenState extends ConsumerState<PinGateScreen> {
 
   String _entered = '';
   String? _firstEntry;
-  bool _hasError = false;
+  String? _errorMessage;
   bool _isSubmitting = false;
 
   void _onDigit(String digit) {
     if (_isSubmitting || _entered.length >= _pinLength) return;
     setState(() {
       _entered += digit;
-      _hasError = false;
+      _errorMessage = null;
     });
     if (_entered.length == _pinLength) {
       _submit();
@@ -47,34 +47,43 @@ class _PinGateScreenState extends ConsumerState<PinGateScreen> {
     final status = ref.read(authControllerProvider).value;
     setState(() => _isSubmitting = true);
 
-    if (status == AuthStatus.noPinSet) {
-      if (_firstEntry == null) {
-        setState(() {
-          _firstEntry = _entered;
-          _entered = '';
-          _isSubmitting = false;
-        });
-        return;
+    try {
+      if (status == AuthStatus.noPinSet) {
+        if (_firstEntry == null) {
+          setState(() {
+            _firstEntry = _entered;
+            _entered = '';
+            _isSubmitting = false;
+          });
+          return;
+        }
+        if (_firstEntry != _entered) {
+          setState(() {
+            _errorMessage = "PINs didn't match — try again";
+            _firstEntry = null;
+            _entered = '';
+            _isSubmitting = false;
+          });
+          return;
+        }
+        await ref.read(authControllerProvider.notifier).createPin(_entered);
+      } else {
+        final isCorrect = await ref.read(authControllerProvider.notifier).unlock(_entered);
+        if (!isCorrect) {
+          setState(() {
+            _errorMessage = 'Incorrect PIN';
+            _entered = '';
+            _isSubmitting = false;
+          });
+        }
       }
-      if (_firstEntry != _entered) {
+    } catch (error) {
+      if (mounted) {
         setState(() {
-          _hasError = true;
-          _firstEntry = null;
+          _errorMessage = 'Something went wrong — please try again';
           _entered = '';
           _isSubmitting = false;
         });
-        return;
-      }
-      await ref.read(authControllerProvider.notifier).createPin(_entered);
-    } else {
-      final isCorrect = await ref.read(authControllerProvider.notifier).unlock(_entered);
-      if (!isCorrect) {
-        setState(() {
-          _hasError = true;
-          _entered = '';
-          _isSubmitting = false;
-        });
-        return;
       }
     }
   }
@@ -107,15 +116,15 @@ class _PinGateScreenState extends ConsumerState<PinGateScreen> {
         const SizedBox(height: 8),
         SizedBox(
           height: 20,
-          child: _hasError
-              ? Text(
-                  isCreating ? "PINs didn't match — try again" : 'Incorrect PIN',
+          child: _errorMessage == null
+              ? null
+              : Text(
+                  _errorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
-                )
-              : null,
+                ),
         ),
         const SizedBox(height: 32),
-        PinDots(length: _pinLength, filled: _entered.length, hasError: _hasError),
+        PinDots(length: _pinLength, filled: _entered.length, hasError: _errorMessage != null),
         const SizedBox(height: 48),
         PinKeypad(onDigitPressed: _onDigit, onBackspacePressed: _onBackspace),
       ],

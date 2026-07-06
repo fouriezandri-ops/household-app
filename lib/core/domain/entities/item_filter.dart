@@ -3,9 +3,9 @@ import 'item.dart';
 /// Which subset of a list is currently shown — combinable, per milestone
 /// 14: an optional "not completed" toggle AND any number of selected
 /// categories (categories are OR'd together; the two dimensions are
-/// AND'd). Shared across all five lists — each has its own
-/// `XFilterController` (see `grocery_list_providers.dart` for the
-/// pattern), but the filter state and the logic to apply it are common.
+/// AND'd). Shared across all five lists via one family controller,
+/// `ListFilterController` (`lib/core/providers/list_filter_providers.dart`),
+/// keyed by `ListType`.
 class ItemFilterState {
   const ItemFilterState({this.notCompletedOnly = false, this.categories = const {}});
 

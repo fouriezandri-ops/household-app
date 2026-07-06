@@ -252,5 +252,149 @@ final allItemsProvider = AutoDisposeStreamProvider<List<Item>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AllItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
+String _$itemsByListTypeHash() => r'b1abf00a10d5b11b210b6d8a81d49446fd839bb8';
+
+/// Items on a single list — one family provider shared by Grocery, Admin,
+/// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+/// `packingItemsProvider`, so it isn't part of this family).
+///
+/// Copied from [itemsByListType].
+@ProviderFor(itemsByListType)
+const itemsByListTypeProvider = ItemsByListTypeFamily();
+
+/// Items on a single list — one family provider shared by Grocery, Admin,
+/// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+/// `packingItemsProvider`, so it isn't part of this family).
+///
+/// Copied from [itemsByListType].
+class ItemsByListTypeFamily extends Family<AsyncValue<List<Item>>> {
+  /// Items on a single list — one family provider shared by Grocery, Admin,
+  /// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+  /// `packingItemsProvider`, so it isn't part of this family).
+  ///
+  /// Copied from [itemsByListType].
+  const ItemsByListTypeFamily();
+
+  /// Items on a single list — one family provider shared by Grocery, Admin,
+  /// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+  /// `packingItemsProvider`, so it isn't part of this family).
+  ///
+  /// Copied from [itemsByListType].
+  ItemsByListTypeProvider call(ListType listType) {
+    return ItemsByListTypeProvider(listType);
+  }
+
+  @override
+  ItemsByListTypeProvider getProviderOverride(
+    covariant ItemsByListTypeProvider provider,
+  ) {
+    return call(provider.listType);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'itemsByListTypeProvider';
+}
+
+/// Items on a single list — one family provider shared by Grocery, Admin,
+/// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+/// `packingItemsProvider`, so it isn't part of this family).
+///
+/// Copied from [itemsByListType].
+class ItemsByListTypeProvider extends AutoDisposeStreamProvider<List<Item>> {
+  /// Items on a single list — one family provider shared by Grocery, Admin,
+  /// Products to Buy, and Wishlist (Packing is keyed by tripId instead, via
+  /// `packingItemsProvider`, so it isn't part of this family).
+  ///
+  /// Copied from [itemsByListType].
+  ItemsByListTypeProvider(ListType listType)
+    : this._internal(
+        (ref) => itemsByListType(ref as ItemsByListTypeRef, listType),
+        from: itemsByListTypeProvider,
+        name: r'itemsByListTypeProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$itemsByListTypeHash,
+        dependencies: ItemsByListTypeFamily._dependencies,
+        allTransitiveDependencies:
+            ItemsByListTypeFamily._allTransitiveDependencies,
+        listType: listType,
+      );
+
+  ItemsByListTypeProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.listType,
+  }) : super.internal();
+
+  final ListType listType;
+
+  @override
+  Override overrideWith(
+    Stream<List<Item>> Function(ItemsByListTypeRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ItemsByListTypeProvider._internal(
+        (ref) => create(ref as ItemsByListTypeRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        listType: listType,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Item>> createElement() {
+    return _ItemsByListTypeProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ItemsByListTypeProvider && other.listType == listType;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, listType.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ItemsByListTypeRef on AutoDisposeStreamProviderRef<List<Item>> {
+  /// The parameter `listType` of this provider.
+  ListType get listType;
+}
+
+class _ItemsByListTypeProviderElement
+    extends AutoDisposeStreamProviderElement<List<Item>>
+    with ItemsByListTypeRef {
+  _ItemsByListTypeProviderElement(super.provider);
+
+  @override
+  ListType get listType => (origin as ItemsByListTypeProvider).listType;
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

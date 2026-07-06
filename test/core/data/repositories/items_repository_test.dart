@@ -126,6 +126,33 @@ void main() {
     expect(moved.history.single.listType, ListType.productsToBuy);
   });
 
+  test('moveToList always writes priority explicitly, clearing it by default', () async {
+    final id = await repository.add(
+      buildItem(listType: ListType.admin, title: 'Renew passport'),
+    );
+    await repository.updateFields(id, {'priority': Priority.high.name});
+
+    await repository.moveToList(id, newListType: ListType.grocery);
+
+    final moved = await repository.getById(id);
+    expect(moved!.priority, isNull);
+  });
+
+  test('moveToList preserves priority when newPriority is passed', () async {
+    final id = await repository.add(
+      buildItem(listType: ListType.grocery, title: 'Something urgent'),
+    );
+
+    await repository.moveToList(
+      id,
+      newListType: ListType.admin,
+      newPriority: Priority.high,
+    );
+
+    final moved = await repository.getById(id);
+    expect(moved!.priority, Priority.high);
+  });
+
   test('updateFields patches a single field without touching the rest', () async {
     final id = await repository.add(
       buildItem(listType: ListType.admin, title: 'Renew passport'),

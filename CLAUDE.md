@@ -472,7 +472,59 @@ service cloud.firestore {
    one concrete, spec'd gap (Home); no other polish (theming, animations,
    app icon/branding assets) was done speculatively — say the word if
    there's something specific to refine next.
-17. ⬜ Code review
+17. ✅ **Code review — done.** Full-project review (8 independent finder
+   angles across the whole codebase, then a 1-vote verification pass on
+   each correctness candidate) surfaced 8 confirmed bugs and 2 duplication
+   cleanups; all 10 were fixed with regression tests, per your direction.
+   **Correctness fixes:**
+   1. All four add/edit sheets did a full-document `.set()` on save using
+      `completed`/`dateCompleted`/`history` captured when the sheet
+      opened — a lost-update race where editing an item could silently
+      revert a concurrent change (e.g. the other partner checking it off
+      while you were mid-edit). Fixed by switching the edit path to a
+      partial `updateFields()` that only touches the fields each form
+      actually owns.
+   2. `priority` (top-level, Admin-only in practice) was never cleared by
+      `moveToList`, so it could linger forever on an item after moving off
+      Admin. Added `Item.priorityForListType` (mirrors
+      `ItemDetails.filterForListType`) and made `moveToList` always write
+      priority explicitly.
+   3. Swipe-to-delete never cleaned up Firebase Storage, leaking a photo
+      blob forever for every deleted Products-to-Buy/Wishlist item.
+      `ItemListTile`'s delete now best-effort deletes the image too.
+   4. The PIN gate had no try/catch around `createPin`/`unlock` — a
+      Keystore/Keychain failure would leave the spinner stuck forever,
+      permanently freezing the keypad (the four list sheets got this fix
+      back in milestone 10; the PIN gate never did). Now catches, shows an
+      error, and resets.
+   5. `MoveItemSheet`'s packing branch was missing the `context.mounted`
+      check after awaiting the trip picker that `QuickAddSheet`'s
+      identical branch already had — added it.
+   6. Search's packing-item dispatch force-unwrapped `details.tripId!`;
+      now shows a graceful error instead of crashing if a packing item is
+      ever missing one.
+   7. The Price field silently discarded unparseable input (e.g. typing
+      "$19.99") with no feedback. Added a validator and a `$` prefix hint.
+   8. A grocery item's unit only displayed if quantity was also set, so a
+      unit-only entry (e.g. "bag" with no quantity) silently vanished from
+      the tile. Fixed the subtitle logic to show whichever is set.
+   **Cleanup:** the five `XFilterController`s (grocery/packing/admin/
+   products/wishlist — byte-for-byte identical aside from generated
+   names) collapsed into one family provider, `ListFilterController`
+   (`lib/core/providers/list_filter_providers.dart`), keyed by `ListType`.
+   The four near-identical list screens (grocery/admin/products/wishlist)
+   collapsed into one generic `ItemListScreen`
+   (`lib/core/presentation/widgets/`), each now a ~15-line wrapper
+   supplying title/listType/label/tileBuilder/onAddPressed; a matching
+   `itemsByListType` family provider replaced the four per-list item
+   streams. Packing keeps its own screen (trip-specific chrome) but now
+   shares the same filter controller.
+   Tests: a regression test added for each of the 8 fixes (lost-update
+   race, priority-cleared-on-move in both directions, storage cleanup on
+   delete, PIN-gate recovery, tripId-missing graceful error, price
+   validation, unit-only display); the cleanup required no new tests since
+   existing per-list screen tests now exercise the shared implementation
+   directly. `flutter analyze` and `flutter test` both pass (71/71).
 18. ⬜ Performance optimization
 
 **Ground rule carried over from the original brief:** after every milestone,
@@ -482,6 +534,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 16 is done (15 deliberately skipped — see its entry above).
-Awaiting explicit approval to start milestone 17 (Code review), per the
+Milestone 17 is done. Awaiting explicit approval to start milestone 18
+(Performance optimization), per the
 ground rule.

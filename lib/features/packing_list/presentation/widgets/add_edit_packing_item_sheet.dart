@@ -87,24 +87,14 @@ class _AddEditPackingItemSheetState
           ),
         );
       } else {
-        await repository.set(
-          existing.id,
-          Item(
-            id: existing.id,
-            listType: existing.listType,
-            title: _titleController.text.trim(),
-            addedBy: existing.addedBy,
-            dateAdded: existing.dateAdded,
-            category: category,
-            notes: notes,
-            priority: existing.priority,
-            completed: existing.completed,
-            imageUrl: existing.imageUrl,
-            dateCompleted: existing.dateCompleted,
-            details: existing.details,
-            history: existing.history,
-          ),
-        );
+        // A partial update — see add_edit_grocery_item_sheet.dart for why
+        // this isn't a full-document `set()`. `details` (tripId) is left
+        // untouched since this form never changes which trip an item is in.
+        await repository.updateFields(existing.id, {
+          'title': _titleController.text.trim(),
+          'category': category,
+          'notes': notes,
+        });
       }
 
       if (mounted) Navigator.of(context).pop();

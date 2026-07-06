@@ -11,9 +11,13 @@ class GroceryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quantityAndUnit = [
+      if (item.details.quantity != null) item.details.quantity.toString(),
+      if (item.details.unit != null) item.details.unit!,
+    ].join(' ');
+
     final subtitleParts = [
-      if (item.details.quantity != null)
-        '${item.details.quantity}${item.details.unit != null ? ' ${item.details.unit}' : ''}',
+      if (quantityAndUnit.isNotEmpty) quantityAndUnit,
       if (item.category != null) item.category!,
     ];
 
