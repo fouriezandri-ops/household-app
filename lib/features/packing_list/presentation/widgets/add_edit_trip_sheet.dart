@@ -26,8 +26,12 @@ class AddEditTripSheet extends ConsumerStatefulWidget {
 
 class _AddEditTripSheetState extends ConsumerState<AddEditTripSheet> {
   final _formKey = GlobalKey<FormState>();
-  late final _nameController = TextEditingController(text: widget.existing?.name);
-  late final _destinationController = TextEditingController(text: widget.existing?.destination);
+  late final _nameController = TextEditingController(
+    text: widget.existing?.name,
+  );
+  late final _destinationController = TextEditingController(
+    text: widget.existing?.destination,
+  );
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isSaving = false;
@@ -115,59 +119,62 @@ class _AddEditTripSheetState extends ConsumerState<AddEditTripSheet> {
       ),
       child: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              widget.existing == null ? 'New trip' : 'Edit trip',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Trip name'),
-              autofocus: widget.existing == null,
-              validator: (value) => (value == null || value.trim().isEmpty) ? 'Required' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _destinationController,
-              decoration: const InputDecoration(labelText: 'Destination'),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Start date'),
-                    subtitle: Text(_formatDate(_startDate)),
-                    onTap: () => _pickDate(isStartDate: true),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                widget.existing == null ? 'New trip' : 'Edit trip',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Trip name'),
+                autofocus: widget.existing == null,
+                validator: (value) =>
+                    (value == null || value.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _destinationController,
+                decoration: const InputDecoration(labelText: 'Destination'),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Start date'),
+                      subtitle: Text(_formatDate(_startDate)),
+                      onTap: () => _pickDate(isStartDate: true),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('End date'),
-                    subtitle: Text(_formatDate(_endDate)),
-                    onTap: () => _pickDate(isStartDate: false),
+                  Expanded(
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('End date'),
+                      subtitle: Text(_formatDate(_endDate)),
+                      onTap: () => _pickDate(isStartDate: false),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _isSaving ? null : _save,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save'),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _isSaving ? null : _save,
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
     );

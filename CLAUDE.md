@@ -257,7 +257,32 @@ service cloud.firestore {
    longer grocery-specific. `flutter analyze` and `flutter test` both pass
    (30/30). Not verified: real device/emulator run, same toolchain
    limitation as prior milestones.
-9. ⬜ Admin List
+9. ✅ **Admin List — done.** `lib/features/admin_todo/`: real
+   `AdminTodoScreen` (filter chips, shared `ItemListTile`) and a fuller
+   add/edit sheet than grocery/packing — title, description
+   (`details.description` — a separate field from the generic top-level
+   `notes` also on the form; both exist per the confirmed schema, even
+   though that reads as some overlap), due date (with a clear button),
+   priority (chip row: None/Low/Medium/High), and an "assigned to" dropdown
+   over the two household members. `AdminTodoTile` shows due date/
+   priority/assigned-to in its subtitle.
+   Also finished the reserved `/home/admin/:itemId` deep-link route from
+   milestone 4: `AdminItemDetailScreen` now actually resolves the item
+   (via a new generic `itemByIdProvider` in `lib/core/providers/
+   firestore_providers.dart`) and auto-opens the edit sheet on top of the
+   admin list once it loads, instead of the placeholder text — ready for
+   milestone 15 (FCM) to link into it, with nothing to retrofit.
+   **Bug found and fixed while testing:** all four add/edit bottom sheets
+   (grocery, trip, packing item, admin) had their `Form` content in a bare
+   `Column` with no scroll container — fine when the form is short, but
+   the admin sheet (the tallest one) actually overflowed and threw a
+   `RenderFlex` error in a test. Fixed by wrapping all four in
+   `SingleChildScrollView`, so none of them can overflow once the
+   on-screen keyboard eats into the available height.
+   Tests: widget tests for both admin screens (add with priority, filter
+   chip, deep-link auto-open) under `test/features/admin_todo/`. `flutter
+   analyze` and `flutter test` both pass (33/33). Not verified: real
+   device/emulator run, same toolchain limitation as prior milestones.
 10. ⬜ Products To Buy
 11. ⬜ Wishlist
 12. ⬜ Move-between-lists functionality
@@ -275,5 +300,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 8 is done. Awaiting explicit approval to start milestone 9
-(Admin List), per the ground rule.
+Milestone 9 is done. Awaiting explicit approval to start milestone 10
+(Products To Buy), per the ground rule.

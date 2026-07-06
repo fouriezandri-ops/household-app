@@ -6,6 +6,7 @@ import '../constants/household_constants.dart';
 import '../data/repositories/household_repository.dart';
 import '../data/repositories/items_repository.dart';
 import '../data/repositories/trips_repository.dart';
+import '../domain/entities/item.dart';
 
 part 'firestore_providers.g.dart';
 
@@ -34,4 +35,11 @@ TripsRepository tripsRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 HouseholdRepository householdRepository(Ref ref) {
   return HouseholdRepository(firestore: ref.watch(firebaseFirestoreProvider));
+}
+
+/// A single item by ID, for deep links into a specific item (e.g. the
+/// reserved `/home/admin/:itemId` route, ahead of FCM — milestone 15).
+@riverpod
+Stream<Item?> itemById(Ref ref, String itemId) {
+  return ref.watch(itemsRepositoryProvider).watchById(itemId);
 }

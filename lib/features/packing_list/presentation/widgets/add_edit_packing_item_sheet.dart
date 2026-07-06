@@ -16,25 +16,38 @@ Future<void> showAddEditPackingItemSheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (context) => AddEditPackingItemSheet(tripId: tripId, existing: existing),
+    builder: (context) =>
+        AddEditPackingItemSheet(tripId: tripId, existing: existing),
   );
 }
 
 class AddEditPackingItemSheet extends ConsumerStatefulWidget {
-  const AddEditPackingItemSheet({super.key, required this.tripId, this.existing});
+  const AddEditPackingItemSheet({
+    super.key,
+    required this.tripId,
+    this.existing,
+  });
 
   final String tripId;
   final Item? existing;
 
   @override
-  ConsumerState<AddEditPackingItemSheet> createState() => _AddEditPackingItemSheetState();
+  ConsumerState<AddEditPackingItemSheet> createState() =>
+      _AddEditPackingItemSheetState();
 }
 
-class _AddEditPackingItemSheetState extends ConsumerState<AddEditPackingItemSheet> {
+class _AddEditPackingItemSheetState
+    extends ConsumerState<AddEditPackingItemSheet> {
   final _formKey = GlobalKey<FormState>();
-  late final _titleController = TextEditingController(text: widget.existing?.title);
-  late final _categoryController = TextEditingController(text: widget.existing?.category);
-  late final _notesController = TextEditingController(text: widget.existing?.notes);
+  late final _titleController = TextEditingController(
+    text: widget.existing?.title,
+  );
+  late final _categoryController = TextEditingController(
+    text: widget.existing?.category,
+  );
+  late final _notesController = TextEditingController(
+    text: widget.existing?.notes,
+  );
   bool _isSaving = false;
 
   @override
@@ -53,7 +66,9 @@ class _AddEditPackingItemSheetState extends ConsumerState<AddEditPackingItemShee
     final category = _categoryController.text.trim().isEmpty
         ? null
         : _categoryController.text.trim();
-    final notes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
+    final notes = _notesController.text.trim().isEmpty
+        ? null
+        : _notesController.text.trim();
 
     final existing = widget.existing;
     if (existing == null) {
@@ -73,7 +88,11 @@ class _AddEditPackingItemSheetState extends ConsumerState<AddEditPackingItemShee
     } else {
       await repository.set(
         existing.id,
-        existing.copyWith(title: _titleController.text.trim(), category: category, notes: notes),
+        existing.copyWith(
+          title: _titleController.text.trim(),
+          category: category,
+          notes: notes,
+        ),
       );
     }
 
@@ -91,45 +110,49 @@ class _AddEditPackingItemSheetState extends ConsumerState<AddEditPackingItemShee
       ),
       child: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              widget.existing == null ? 'Add packing item' : 'Edit packing item',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Item'),
-              autofocus: widget.existing == null,
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? 'Required' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _categoryController,
-              decoration: const InputDecoration(labelText: 'Category'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _notesController,
-              decoration: const InputDecoration(labelText: 'Notes'),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _isSaving ? null : _save,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                widget.existing == null
+                    ? 'Add packing item'
+                    : 'Edit packing item',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Item'),
+                autofocus: widget.existing == null,
+                validator: (value) =>
+                    (value == null || value.trim().isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _categoryController,
+                decoration: const InputDecoration(labelText: 'Category'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _notesController,
+                decoration: const InputDecoration(labelText: 'Notes'),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _isSaving ? null : _save,
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
     );
