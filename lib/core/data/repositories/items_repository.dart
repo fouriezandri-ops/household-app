@@ -24,6 +24,19 @@ class ItemsRepository extends FirestoreRepository<Item> {
         .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 
+  /// Packing items for a single trip, newest first. `details.tripId` is
+  /// only ever set on packing-list items, so filtering on it alone would
+  /// be enough, but including `listType` keeps the query's intent explicit
+  /// and matches the composite index in firestore.indexes.json.
+  Stream<List<Item>> watchByTripId(String tripId) {
+    return collection
+        .where('listType', isEqualTo: ListType.packing.value)
+        .where('details.tripId', isEqualTo: tripId)
+        .orderBy('dateAdded', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
   /// Moves [itemId] to [newListType], optionally patching `details` at the
   /// same time (the move-between-lists feature decides which fields carry
   /// over), and appends a [HistoryEntry] — never overwriting prior history.

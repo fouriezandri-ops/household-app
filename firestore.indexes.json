@@ -24,6 +24,15 @@
         { "fieldPath": "listType", "order": "ASCENDING" },
         { "fieldPath": "category", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "listType", "order": "ASCENDING" },
+        { "fieldPath": "details.tripId", "order": "ASCENDING" },
+        { "fieldPath": "dateAdded", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

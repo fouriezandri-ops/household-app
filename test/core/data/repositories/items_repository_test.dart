@@ -69,6 +69,36 @@ void main() {
     expect(groceryItems.map((item) => item.title), ['Newer', 'Older']);
   });
 
+  test('watchByTripId only returns packing items for that trip, newest first', () async {
+    await repository.add(
+      buildItem(
+        listType: ListType.packing,
+        title: 'Old for trip A',
+        dateAdded: DateTime(2026, 1, 1),
+        details: const ItemDetails(tripId: 'trip-a'),
+      ),
+    );
+    await repository.add(
+      buildItem(
+        listType: ListType.packing,
+        title: 'New for trip A',
+        dateAdded: DateTime(2026, 6, 1),
+        details: const ItemDetails(tripId: 'trip-a'),
+      ),
+    );
+    await repository.add(
+      buildItem(
+        listType: ListType.packing,
+        title: 'For trip B',
+        details: const ItemDetails(tripId: 'trip-b'),
+      ),
+    );
+
+    final tripAItems = await repository.watchByTripId('trip-a').first;
+
+    expect(tripAItems.map((item) => item.title), ['New for trip A', 'Old for trip A']);
+  });
+
   test('moveToList updates listType, optionally details, and appends history', () async {
     final id = await repository.add(
       buildItem(

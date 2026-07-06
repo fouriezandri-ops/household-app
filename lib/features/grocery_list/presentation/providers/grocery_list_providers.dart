@@ -2,9 +2,9 @@ import 'package:riverpod/riverpod.dart' show Ref;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/domain/entities/item.dart';
+import '../../../../core/domain/entities/item_filter.dart';
 import '../../../../core/domain/entities/list_type.dart';
 import '../../../../core/providers/firestore_providers.dart';
-import '../../domain/entities/grocery_filter.dart';
 
 part 'grocery_list_providers.g.dart';
 
@@ -16,18 +16,7 @@ Stream<List<Item>> groceryItems(Ref ref) {
 @riverpod
 class GroceryFilterController extends _$GroceryFilterController {
   @override
-  GroceryFilter build() => const GroceryFilterAll();
+  ItemFilter build() => const ItemFilterAll();
 
-  void select(GroceryFilter filter) => state = filter;
-}
-
-/// Applies the current [GroceryFilter] to a list of items — pulled out of
-/// the screen so it's independently testable.
-List<Item> applyGroceryFilter(List<Item> items, GroceryFilter filter) {
-  return switch (filter) {
-    GroceryFilterAll() => items,
-    GroceryFilterNotPurchased() => items.where((item) => !item.completed).toList(),
-    GroceryFilterCategory(:final category) =>
-      items.where((item) => item.category == category).toList(),
-  };
+  void select(ItemFilter filter) => state = filter;
 }

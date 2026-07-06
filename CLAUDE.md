@@ -233,7 +233,30 @@ service cloud.firestore {
    pass. Not verified: real device/emulator run, or the swipe gesture and
    keyboard/focus behavior interactively — same toolchain limitation as
    prior milestones.
-8. ⬜ Packing List
+8. ✅ **Packing List — done.** Since this is the second list built (with
+   three more to come), first extracted the reusable pieces from Grocery
+   into `lib/core/`: `ItemFilter`/`applyItemFilter` (generalized from
+   `GroceryFilter`, `lib/core/domain/entities/item_filter.dart`),
+   `ItemFilterChipRow` and `ItemListTile` (`lib/core/presentation/widgets/`
+   — completion checkbox, strikethrough, added-by chip, swipe-left delete
+   with confirmation; Move still deliberately omitted, same reasoning as
+   milestone 7). Grocery now consumes these shared pieces instead of its
+   own copies. Added `FirestoreRepository.watchById` and
+   `ItemsRepository.watchByTripId` (+ its composite index in
+   `firestore.indexes.json`).
+   `lib/features/packing_list/`: `PackingTripsScreen` (trip picker,
+   `TripsRepository.watchAllByStartDate`, add-trip modal sheet) and
+   `PackingTripDetailScreen` (`/home/packing/:tripId` — items for that trip,
+   filter chips, add-item modal sheet, edit-trip action in the app bar).
+   Packing items only ever use `details.tripId` (no quantity/unit — those
+   are grocery-only per the schema).
+   Tests: repository test for `watchByTripId`, plus
+   `fake_cloud_firestore`-backed widget tests for both screens under
+   `test/features/packing_list/`; the filter-logic test moved to
+   `test/core/domain/item_filter_test.dart` since the logic it covers is no
+   longer grocery-specific. `flutter analyze` and `flutter test` both pass
+   (30/30). Not verified: real device/emulator run, same toolchain
+   limitation as prior milestones.
 9. ⬜ Admin List
 10. ⬜ Products To Buy
 11. ⬜ Wishlist
@@ -252,5 +275,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 7 is done. Awaiting explicit approval to start milestone 8
-(Packing List), per the ground rule.
+Milestone 8 is done. Awaiting explicit approval to start milestone 9
+(Admin List), per the ground rule.

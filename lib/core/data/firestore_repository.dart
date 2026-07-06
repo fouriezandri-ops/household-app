@@ -39,6 +39,10 @@ abstract class FirestoreRepository<T> {
     return snapshot.data();
   }
 
+  Stream<T?> watchById(String id) {
+    return collection.doc(id).snapshots().map((snapshot) => snapshot.data());
+  }
+
   Stream<List<T>> watchAll() {
     return collection.snapshots().map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
