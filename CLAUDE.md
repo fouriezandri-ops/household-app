@@ -324,7 +324,28 @@ service cloud.firestore {
    the picker flow itself is untested (only the save path with no photo,
    and rendering an already-set `imageUrl`). Same device/emulator
    limitation as prior milestones otherwise.
-11. ⬜ Wishlist
+11. ✅ **Wishlist — done. All five lists now built (milestones 7-11).**
+   Wishlist and Products to Buy share almost every field (store,
+   websiteUrl, price, imageUrl — only `desiredQuantity` is
+   products-to-buy-only per the schema), and this was the third
+   near-identical list in a row, so the add/edit sheet and tile moved to
+   `lib/core/presentation/widgets/` as `ShoppableItemSheet`/
+   `ShoppableItemTile`, parameterized by `listType`/`itemTypeLabel`/
+   `fieldLabel`/`showDesiredQuantity`. Both `lib/features/products_to_buy/`
+   and the new `lib/features/wishlist/` are now thin wrappers (a
+   `showAddEditXSheet` function and a one-line tile class) over the shared
+   widgets — products_to_buy's own sheet/tile were rewritten in place as
+   part of this, no behavior change. This also directly sets up milestone
+   12 (move-between-lists, especially Wishlist ↔ Products to Buy): since
+   both lists already read/write the identical `ItemDetails` shape, a move
+   between them won't need any field-translation logic.
+   Wishlist screen: filter chips ("Not received" for the not-completed
+   label), add/edit sheet without the quantity field.
+   Tests: `test/features/wishlist/` covers add-with-store/price (and
+   asserts the quantity field is absent), and the filter chip; the
+   products_to_buy tests were unaffected by the refactor. `flutter analyze`
+   and `flutter test` both pass (39/39). Not verified: real device/emulator
+   run, same limitation as prior milestones.
 12. ⬜ Move-between-lists functionality
 13. ⬜ Search
 14. ⬜ Filters
@@ -340,5 +361,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 10 is done. Awaiting explicit approval to start milestone 11
-(Wishlist), per the ground rule.
+Milestone 11 is done — all five lists exist now. Awaiting explicit
+approval to start milestone 12 (move-between-lists functionality), per the
+ground rule.

@@ -4,12 +4,14 @@ import '../../../../core/domain/entities/item.dart';
 import '../../../../core/domain/entities/list_type.dart';
 import '../../../../core/presentation/widgets/shoppable_item_sheet.dart';
 
-Future<void> showAddEditProductSheet(BuildContext context, {Item? existing}) {
+/// Wishlist has no `desiredQuantity` — that's Products to Buy only.
+Future<void> showAddEditWishlistItemSheet(BuildContext context, {Item? existing}) {
   return showAddEditShoppableItemSheet(
     context,
-    listType: ListType.productsToBuy,
-    itemTypeLabel: 'product to buy',
-    fieldLabel: 'Product',
+    listType: ListType.wishlist,
+    itemTypeLabel: 'wishlist item',
+    fieldLabel: 'Item',
+    showDesiredQuantity: false,
     existing: existing,
   );
 }

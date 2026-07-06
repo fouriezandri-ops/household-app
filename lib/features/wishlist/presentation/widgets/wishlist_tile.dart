@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/domain/entities/item.dart';
 import '../../../../core/presentation/widgets/shoppable_item_tile.dart';
-import 'add_edit_product_sheet.dart';
+import 'add_edit_wishlist_item_sheet.dart';
 
-class ProductTile extends StatelessWidget {
-  const ProductTile({super.key, required this.item});
+class WishlistTile extends StatelessWidget {
+  const WishlistTile({super.key, required this.item});
 
   final Item item;
 
@@ -13,7 +13,7 @@ class ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShoppableItemTile(
       item: item,
-      onTap: () => showAddEditProductSheet(context, existing: item),
+      onTap: () => showAddEditWishlistItemSheet(context, existing: item),
     );
   }
 }
