@@ -138,13 +138,15 @@ service cloud.firestore {
 1. ✅ Project plan
 2. ✅ Wireframes (home screen, grocery list detail)
 3. ✅ Firestore schema design
-4. ⏳ **Navigation design — in progress, not yet finalized.** Direction so
-   far: go_router with a `StatefulShellRoute` for the bottom-nav tabs (Home /
-   Search / Settings), each of the five lists as a pushed route from Home
-   (not its own tab), add/edit item as a modal bottom sheet rather than a
-   full route, move-between-lists triggered from the swipe/long-press action
-   rather than a dedicated route. This still needs to be finalized with a
-   concrete route table before building the navigation shell.
+4. ✅ **Navigation design — finalized.** go_router with a
+   `StatefulShellRoute.indexedStack` for the bottom-nav tabs (Home / Search /
+   Settings), each of the five lists as a pushed route from Home, Packing
+   nested under a trip-picker (`/home/packing` → `/home/packing/:tripId`),
+   a reserved deep-link route for admin items (`/home/admin/:itemId`) ahead
+   of FCM, add/edit/move/trip-create all as modal bottom sheets, and a PIN
+   gate (`/pin`) guarded by a `GoRouter` redirect on cold start plus a
+   lifecycle-based re-lock after an inactivity threshold. Full route table
+   and rationale in `docs/navigation.md`.
 5. ⬜ Authentication (PIN gate, open Firestore rules)
 6. ⬜ Shared database setup (Firebase project, repository pattern base classes)
 7. ⬜ Grocery List
@@ -167,5 +169,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Finish milestone 4 (navigation design — concrete go_router route table and
-navigation shell) before starting milestone 5 (authentication).
+Milestone 4 is done. Awaiting explicit approval to start milestone 5
+(authentication — PIN gate, open Firestore rules), per the ground rule.
