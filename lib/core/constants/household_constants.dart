@@ -15,6 +15,6 @@ const member1Uid = 'member-1';
 const member2Uid = 'member-2';
 
 const defaultMemberSeeds = [
-  (uid: member1Uid, displayName: 'Partner 1', colorTag: '#3A6351'),
-  (uid: member2Uid, displayName: 'Partner 2', colorTag: '#8E5B3C'),
+  (uid: member1Uid, displayName: 'Zandri', colorTag: '#3A6351'),
+  (uid: member2Uid, displayName: 'Renier', colorTag: '#8E5B3C'),
 ];
