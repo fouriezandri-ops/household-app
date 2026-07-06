@@ -24,12 +24,15 @@ final groceryItemsProvider = AutoDisposeStreamProvider<List<Item>>.internal(
 // ignore: unused_element
 typedef GroceryItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
 String _$groceryFilterControllerHash() =>
-    r'fa8325c1b6962f997383f91e4ba61c7e12831e6b';
+    r'350fff34bd960788a18631c38aca3b76b9834da0';
 
 /// See also [GroceryFilterController].
 @ProviderFor(GroceryFilterController)
 final groceryFilterControllerProvider =
-    AutoDisposeNotifierProvider<GroceryFilterController, ItemFilter>.internal(
+    AutoDisposeNotifierProvider<
+      GroceryFilterController,
+      ItemFilterState
+    >.internal(
       GroceryFilterController.new,
       name: r'groceryFilterControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -39,6 +42,6 @@ final groceryFilterControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$GroceryFilterController = AutoDisposeNotifier<ItemFilter>;
+typedef _$GroceryFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

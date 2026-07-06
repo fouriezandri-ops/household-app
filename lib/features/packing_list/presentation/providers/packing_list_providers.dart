@@ -26,7 +26,7 @@ Stream<List<Item>> packingItems(Ref ref, String tripId) {
 @riverpod
 class PackingFilterController extends _$PackingFilterController {
   @override
-  ItemFilter build() => const ItemFilterAll();
+  ItemFilterState build() => const ItemFilterState();
 
-  void select(ItemFilter filter) => state = filter;
+  void update(ItemFilterState value) => state = value;
 }

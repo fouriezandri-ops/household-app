@@ -27,8 +27,8 @@ class ProductsToBuyScreen extends ConsumerWidget {
                 items: items,
                 selected: filter,
                 notCompletedLabel: 'Not bought',
-                onSelected: (newFilter) =>
-                    ref.read(productsToBuyFilterControllerProvider.notifier).select(newFilter),
+                onChanged: (newFilter) =>
+                    ref.read(productsToBuyFilterControllerProvider.notifier).update(newFilter),
               ),
               Expanded(
                 child: filtered.isEmpty

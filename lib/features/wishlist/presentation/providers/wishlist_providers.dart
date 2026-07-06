@@ -16,7 +16,7 @@ Stream<List<Item>> wishlistItems(Ref ref) {
 @riverpod
 class WishlistFilterController extends _$WishlistFilterController {
   @override
-  ItemFilter build() => const ItemFilterAll();
+  ItemFilterState build() => const ItemFilterState();
 
-  void select(ItemFilter filter) => state = filter;
+  void update(ItemFilterState value) => state = value;
 }

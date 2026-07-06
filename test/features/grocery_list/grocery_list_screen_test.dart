@@ -104,6 +104,69 @@ void main() {
     expect(find.text('Eggs'), findsNothing);
   });
 
+  testWidgets('"Not purchased" and a category chip combine (AND), not replace each other', (
+    tester,
+  ) async {
+    await itemsRepository.add(
+      Item(
+        id: '',
+        listType: ListType.grocery,
+        title: 'Milk',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
+        category: 'Dairy',
+      ),
+    );
+    await itemsRepository.add(
+      Item(
+        id: '',
+        listType: ListType.grocery,
+        title: 'Cheese',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
+        category: 'Dairy',
+        completed: true,
+      ),
+    );
+    await itemsRepository.add(
+      Item(
+        id: '',
+        listType: ListType.grocery,
+        title: 'Bread',
+        addedBy: 'member-1',
+        dateAdded: DateTime.now(),
+        category: 'Bakery',
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: overrides(),
+        child: const MaterialApp(home: GroceryListScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Not purchased'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilterChip, 'Dairy'));
+    await tester.pumpAndSettle();
+
+    // Both filters active at once: not-completed AND Dairy — only Milk
+    // qualifies (Cheese is Dairy but completed; Bread is not completed but
+    // Bakery).
+    expect(find.text('Milk'), findsOneWidget);
+    expect(find.text('Cheese'), findsNothing);
+    expect(find.text('Bread'), findsNothing);
+
+    // Tapping "All" resets both dimensions at once.
+    await tester.tap(find.widgetWithText(FilterChip, 'All'));
+    await tester.pumpAndSettle();
+    expect(find.text('Milk'), findsOneWidget);
+    expect(find.text('Cheese'), findsOneWidget);
+    expect(find.text('Bread'), findsOneWidget);
+  });
+
   testWidgets('editing an item can clear a previously-set category', (tester) async {
     final id = await itemsRepository.add(
       Item(

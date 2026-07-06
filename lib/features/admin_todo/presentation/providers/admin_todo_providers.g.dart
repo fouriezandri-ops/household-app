@@ -24,12 +24,15 @@ final adminItemsProvider = AutoDisposeStreamProvider<List<Item>>.internal(
 // ignore: unused_element
 typedef AdminItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
 String _$adminFilterControllerHash() =>
-    r'c0fcf2ed67d0860f2f978059995315952bf6549a';
+    r'd333e4b9a749f9a2c3b1c9859f4872864e609880';
 
 /// See also [AdminFilterController].
 @ProviderFor(AdminFilterController)
 final adminFilterControllerProvider =
-    AutoDisposeNotifierProvider<AdminFilterController, ItemFilter>.internal(
+    AutoDisposeNotifierProvider<
+      AdminFilterController,
+      ItemFilterState
+    >.internal(
       AdminFilterController.new,
       name: r'adminFilterControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -39,6 +42,6 @@ final adminFilterControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$AdminFilterController = AutoDisposeNotifier<ItemFilter>;
+typedef _$AdminFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

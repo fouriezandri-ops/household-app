@@ -27,8 +27,8 @@ class AdminTodoScreen extends ConsumerWidget {
                 items: items,
                 selected: filter,
                 notCompletedLabel: 'Not done',
-                onSelected: (newFilter) =>
-                    ref.read(adminFilterControllerProvider.notifier).select(newFilter),
+                onChanged: (newFilter) =>
+                    ref.read(adminFilterControllerProvider.notifier).update(newFilter),
               ),
               Expanded(
                 child: filtered.isEmpty

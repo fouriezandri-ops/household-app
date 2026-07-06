@@ -1,34 +1,37 @@
 import 'item.dart';
 
-/// Which subset of a list is currently shown. A single active filter (not
-/// combinable) — matches the wireframe's filter-chip row for each list.
-/// Combining filters (e.g. "not completed" + a category) is scoped to the
-/// dedicated Filters milestone. Shared across all five lists — each has its
-/// own `XFilterController` (see `grocery_list_providers.dart` for the
-/// pattern), but the filter values and the logic to apply them are common.
-sealed class ItemFilter {
-  const ItemFilter();
+/// Which subset of a list is currently shown — combinable, per milestone
+/// 14: an optional "not completed" toggle AND any number of selected
+/// categories (categories are OR'd together; the two dimensions are
+/// AND'd). Shared across all five lists — each has its own
+/// `XFilterController` (see `grocery_list_providers.dart` for the
+/// pattern), but the filter state and the logic to apply it are common.
+class ItemFilterState {
+  const ItemFilterState({this.notCompletedOnly = false, this.categories = const {}});
+
+  final bool notCompletedOnly;
+  final Set<String> categories;
+
+  /// True when no filter is active — i.e. "All".
+  bool get isEmpty => !notCompletedOnly && categories.isEmpty;
+
+  ItemFilterState clear() => const ItemFilterState();
+
+  ItemFilterState toggleNotCompletedOnly() {
+    return ItemFilterState(notCompletedOnly: !notCompletedOnly, categories: categories);
+  }
+
+  ItemFilterState toggleCategory(String category) {
+    final updated = Set<String>.of(categories);
+    if (!updated.remove(category)) updated.add(category);
+    return ItemFilterState(notCompletedOnly: notCompletedOnly, categories: updated);
+  }
 }
 
-class ItemFilterAll extends ItemFilter {
-  const ItemFilterAll();
-}
-
-class ItemFilterNotCompleted extends ItemFilter {
-  const ItemFilterNotCompleted();
-}
-
-class ItemFilterCategory extends ItemFilter {
-  const ItemFilterCategory(this.category);
-
-  final String category;
-}
-
-List<Item> applyItemFilter(List<Item> items, ItemFilter filter) {
-  return switch (filter) {
-    ItemFilterAll() => items,
-    ItemFilterNotCompleted() => items.where((item) => !item.completed).toList(),
-    ItemFilterCategory(:final category) =>
-      items.where((item) => item.category == category).toList(),
-  };
+List<Item> applyItemFilter(List<Item> items, ItemFilterState filter) {
+  return items.where((item) {
+    if (filter.notCompletedOnly && item.completed) return false;
+    if (filter.categories.isNotEmpty && !filter.categories.contains(item.category)) return false;
+    return true;
+  }).toList();
 }

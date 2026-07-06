@@ -5,28 +5,27 @@ import '../../domain/entities/item_filter.dart';
 
 /// The "All / Not completed / one chip per category" row used at the top
 /// of every list screen. [notCompletedLabel] varies by list ("Not
-/// purchased" for grocery, "Not packed" for packing, ...).
+/// purchased" for grocery, "Not packed" for packing, ...). "Not completed"
+/// and any number of categories are independently toggleable and combine
+/// (AND'd) — "All" is a quick reset, not a separate stored state.
 class ItemFilterChipRow extends StatelessWidget {
   const ItemFilterChipRow({
     super.key,
     required this.items,
     required this.selected,
     required this.notCompletedLabel,
-    required this.onSelected,
+    required this.onChanged,
   });
 
   final List<Item> items;
-  final ItemFilter selected;
+  final ItemFilterState selected;
   final String notCompletedLabel;
-  final ValueChanged<ItemFilter> onSelected;
+  final ValueChanged<ItemFilterState> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final categories = items.map((item) => item.category).whereType<String>().toSet().toList()
       ..sort();
-    // Bound to a local so `is` checks below promote reliably, rather than
-    // depending on instance-field promotion rules.
-    final currentFilter = selected;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -36,21 +35,21 @@ class ItemFilterChipRow extends StatelessWidget {
           children: [
             _Chip(
               label: 'All',
-              selected: currentFilter is ItemFilterAll,
-              onSelected: () => onSelected(const ItemFilterAll()),
+              selected: selected.isEmpty,
+              onSelected: () => onChanged(selected.clear()),
             ),
             const SizedBox(width: 8),
             _Chip(
               label: notCompletedLabel,
-              selected: currentFilter is ItemFilterNotCompleted,
-              onSelected: () => onSelected(const ItemFilterNotCompleted()),
+              selected: selected.notCompletedOnly,
+              onSelected: () => onChanged(selected.toggleNotCompletedOnly()),
             ),
             for (final category in categories) ...[
               const SizedBox(width: 8),
               _Chip(
                 label: category,
-                selected: currentFilter is ItemFilterCategory && currentFilter.category == category,
-                onSelected: () => onSelected(ItemFilterCategory(category)),
+                selected: selected.categories.contains(category),
+                onSelected: () => onChanged(selected.toggleCategory(category)),
               ),
             ],
           ],
@@ -69,6 +68,6 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected());
+    return FilterChip(label: Text(label), selected: selected, onSelected: (_) => onSelected());
   }
 }

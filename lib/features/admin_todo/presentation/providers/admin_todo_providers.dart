@@ -16,7 +16,7 @@ Stream<List<Item>> adminItems(Ref ref) {
 @riverpod
 class AdminFilterController extends _$AdminFilterController {
   @override
-  ItemFilter build() => const ItemFilterAll();
+  ItemFilterState build() => const ItemFilterState();
 
-  void select(ItemFilter filter) => state = filter;
+  void update(ItemFilterState value) => state = value;
 }

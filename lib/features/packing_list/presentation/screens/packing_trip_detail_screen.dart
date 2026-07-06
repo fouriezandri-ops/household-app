@@ -41,8 +41,8 @@ class PackingTripDetailScreen extends ConsumerWidget {
                 items: items,
                 selected: filter,
                 notCompletedLabel: 'Not packed',
-                onSelected: (newFilter) =>
-                    ref.read(packingFilterControllerProvider.notifier).select(newFilter),
+                onChanged: (newFilter) =>
+                    ref.read(packingFilterControllerProvider.notifier).update(newFilter),
               ),
               Expanded(
                 child: filtered.isEmpty

@@ -27,8 +27,8 @@ class WishlistScreen extends ConsumerWidget {
                 items: items,
                 selected: filter,
                 notCompletedLabel: 'Not received',
-                onSelected: (newFilter) =>
-                    ref.read(wishlistFilterControllerProvider.notifier).select(newFilter),
+                onChanged: (newFilter) =>
+                    ref.read(wishlistFilterControllerProvider.notifier).update(newFilter),
               ),
               Expanded(
                 child: filtered.isEmpty

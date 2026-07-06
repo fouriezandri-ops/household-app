@@ -279,12 +279,15 @@ class _PackingItemsProviderElement
 }
 
 String _$packingFilterControllerHash() =>
-    r'23568ee51fa8fd90f0fd8c1e90c5b9387b2bf8c2';
+    r'a39b131748b8b8c02eff8b9b2d935c957f04d31f';
 
 /// See also [PackingFilterController].
 @ProviderFor(PackingFilterController)
 final packingFilterControllerProvider =
-    AutoDisposeNotifierProvider<PackingFilterController, ItemFilter>.internal(
+    AutoDisposeNotifierProvider<
+      PackingFilterController,
+      ItemFilterState
+    >.internal(
       PackingFilterController.new,
       name: r'packingFilterControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -294,6 +297,6 @@ final packingFilterControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$PackingFilterController = AutoDisposeNotifier<ItemFilter>;
+typedef _$PackingFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

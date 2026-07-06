@@ -26,14 +26,14 @@ final productsToBuyItemsProvider =
 // ignore: unused_element
 typedef ProductsToBuyItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
 String _$productsToBuyFilterControllerHash() =>
-    r'cd50dbd50ed9a9e493f4c27cd8ccfa89d289c964';
+    r'efbc6b1bfbd7cd8e7171d1a7153912b294f96f14';
 
 /// See also [ProductsToBuyFilterController].
 @ProviderFor(ProductsToBuyFilterController)
 final productsToBuyFilterControllerProvider =
     AutoDisposeNotifierProvider<
       ProductsToBuyFilterController,
-      ItemFilter
+      ItemFilterState
     >.internal(
       ProductsToBuyFilterController.new,
       name: r'productsToBuyFilterControllerProvider',
@@ -44,6 +44,6 @@ final productsToBuyFilterControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$ProductsToBuyFilterController = AutoDisposeNotifier<ItemFilter>;
+typedef _$ProductsToBuyFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

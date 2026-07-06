@@ -16,7 +16,7 @@ Stream<List<Item>> productsToBuyItems(Ref ref) {
 @riverpod
 class ProductsToBuyFilterController extends _$ProductsToBuyFilterController {
   @override
-  ItemFilter build() => const ItemFilterAll();
+  ItemFilterState build() => const ItemFilterState();
 
-  void select(ItemFilter filter) => state = filter;
+  void update(ItemFilterState value) => state = value;
 }

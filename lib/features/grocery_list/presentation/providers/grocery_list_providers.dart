@@ -16,7 +16,7 @@ Stream<List<Item>> groceryItems(Ref ref) {
 @riverpod
 class GroceryFilterController extends _$GroceryFilterController {
   @override
-  ItemFilter build() => const ItemFilterAll();
+  ItemFilterState build() => const ItemFilterState();
 
-  void select(ItemFilter filter) => state = filter;
+  void update(ItemFilterState value) => state = value;
 }

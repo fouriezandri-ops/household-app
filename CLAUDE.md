@@ -407,7 +407,30 @@ service cloud.firestore {
    sheet) under `test/features/search/`. `flutter analyze` and `flutter
    test` both pass (53/53). Not verified: real device/emulator run, same
    limitation as prior milestones.
-14. ⬜ Filters
+14. ✅ **Filters — done.** Upgrades the single-select filter chips every
+   list screen got in milestones 7-11 (explicitly deferred there, "full
+   combinable filtering is milestone 14") into real combinable filtering:
+   `ItemFilterState` (`lib/core/domain/entities/item_filter.dart`) replaced
+   the old sealed-class single-choice `ItemFilter` with a `notCompletedOnly`
+   toggle AND any number of selected `categories` (categories OR'd
+   together, the two dimensions AND'd) — "All" is a computed reset
+   (`isEmpty`/`clear()`), not a stored state. `ItemFilterChipRow` switched
+   from `ChoiceChip` (radio-button, one at a time) to `FilterChip`
+   (independently toggleable). All five `XFilterController`s
+   (grocery/packing/admin/products/wishlist) mechanically updated to the
+   same new shape — each is still just `build() => const
+   ItemFilterState()` + a single `update(value)` setter, no behavioral
+   logic duplicated per list since `ItemFilterChipRow` computes the next
+   state itself via `ItemFilterState`'s toggle methods.
+   Tests: rewrote `test/core/domain/item_filter_test.dart` for the new
+   combinable model (OR across categories, AND with notCompletedOnly,
+   toggle-twice-clears, `clear()`); added a grocery widget test proving two
+   filters combine rather than replace each other end-to-end (hit and fixed
+   an ambiguous-widget-match failure along the way — an item's category
+   subtitle text and the same-named filter chip both matched `find.text`,
+   fixed with `find.widgetWithText(FilterChip, ...)`). `flutter analyze`
+   and `flutter test` both pass (58/58). Not verified: real device/emulator
+   interaction with the chips, same limitation as prior milestones.
 15. ⬜ Notifications (FCM)
 16. ⬜ UI polish
 17. ⬜ Code review
@@ -420,6 +443,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 13 is done. Awaiting explicit approval to start milestone 14
-(Filters), per the
+Milestone 14 is done. Awaiting explicit approval to start milestone 15
+(Notifications / FCM), per the
 ground rule.

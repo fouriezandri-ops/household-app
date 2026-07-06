@@ -20,19 +20,47 @@ void main() {
     item(title: 'Milk', category: 'Dairy'),
     item(title: 'Eggs', category: 'Dairy', completed: true),
     item(title: 'Bread', category: 'Bakery'),
+    item(title: 'Cheese', category: 'Dairy'),
   ];
 
-  test('ItemFilterAll returns every item', () {
-    expect(applyItemFilter(items, const ItemFilterAll()), items);
+  test('the empty (default) filter is "All" and returns every item', () {
+    const filter = ItemFilterState();
+    expect(filter.isEmpty, isTrue);
+    expect(applyItemFilter(items, filter), items);
   });
 
-  test('ItemFilterNotCompleted excludes completed items', () {
-    final result = applyItemFilter(items, const ItemFilterNotCompleted());
-    expect(result.map((item) => item.title), ['Milk', 'Bread']);
+  test('toggling notCompletedOnly excludes completed items', () {
+    final filter = const ItemFilterState().toggleNotCompletedOnly();
+    final result = applyItemFilter(items, filter);
+    expect(result.map((item) => item.title), ['Milk', 'Bread', 'Cheese']);
   });
 
-  test('ItemFilterCategory only returns matching items', () {
-    final result = applyItemFilter(items, const ItemFilterCategory('Dairy'));
-    expect(result.map((item) => item.title), ['Milk', 'Eggs']);
+  test('toggling a category returns only matching items', () {
+    final filter = const ItemFilterState().toggleCategory('Dairy');
+    final result = applyItemFilter(items, filter);
+    expect(result.map((item) => item.title), ['Milk', 'Eggs', 'Cheese']);
+  });
+
+  test('categories combine with OR — selecting two categories returns items in either', () {
+    final filter = const ItemFilterState().toggleCategory('Dairy').toggleCategory('Bakery');
+    final result = applyItemFilter(items, filter);
+    expect(result, items); // every item is Dairy or Bakery here
+  });
+
+  test('notCompletedOnly and a category combine with AND', () {
+    final filter = const ItemFilterState().toggleNotCompletedOnly().toggleCategory('Dairy');
+    final result = applyItemFilter(items, filter);
+    expect(result.map((item) => item.title), ['Milk', 'Cheese']);
+  });
+
+  test('toggling a category twice clears it', () {
+    final filter = const ItemFilterState().toggleCategory('Dairy').toggleCategory('Dairy');
+    expect(filter.categories, isEmpty);
+    expect(filter.isEmpty, isTrue);
+  });
+
+  test('clear() resets both dimensions', () {
+    final filter = const ItemFilterState().toggleNotCompletedOnly().toggleCategory('Dairy');
+    expect(filter.clear().isEmpty, isTrue);
   });
 }

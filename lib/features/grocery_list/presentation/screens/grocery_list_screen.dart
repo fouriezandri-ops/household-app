@@ -27,8 +27,8 @@ class GroceryListScreen extends ConsumerWidget {
                 items: items,
                 selected: filter,
                 notCompletedLabel: 'Not purchased',
-                onSelected: (newFilter) =>
-                    ref.read(groceryFilterControllerProvider.notifier).select(newFilter),
+                onChanged: (newFilter) =>
+                    ref.read(groceryFilterControllerProvider.notifier).update(newFilter),
               ),
               Expanded(
                 child: filtered.isEmpty

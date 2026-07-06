@@ -24,12 +24,15 @@ final wishlistItemsProvider = AutoDisposeStreamProvider<List<Item>>.internal(
 // ignore: unused_element
 typedef WishlistItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
 String _$wishlistFilterControllerHash() =>
-    r'e373fec076c7b21b0baa04ad68d8fec466d07f9e';
+    r'4154692429a41bfb0ae98d8a3889b7ba9bbf86a7';
 
 /// See also [WishlistFilterController].
 @ProviderFor(WishlistFilterController)
 final wishlistFilterControllerProvider =
-    AutoDisposeNotifierProvider<WishlistFilterController, ItemFilter>.internal(
+    AutoDisposeNotifierProvider<
+      WishlistFilterController,
+      ItemFilterState
+    >.internal(
       WishlistFilterController.new,
       name: r'wishlistFilterControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -39,6 +42,6 @@ final wishlistFilterControllerProvider =
       allTransitiveDependencies: null,
     );
 
-typedef _$WishlistFilterController = AutoDisposeNotifier<ItemFilter>;
+typedef _$WishlistFilterController = AutoDisposeNotifier<ItemFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
