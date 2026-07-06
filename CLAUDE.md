@@ -431,8 +431,47 @@ service cloud.firestore {
    fixed with `find.widgetWithText(FilterChip, ...)`). `flutter analyze`
    and `flutter test` both pass (58/58). Not verified: real device/emulator
    interaction with the chips, same limitation as prior milestones.
-15. ⬜ Notifications (FCM)
-16. ⬜ UI polish
+15. ⏸️ **Notifications — deliberately deferred, not started.** Real push
+   needs a server-side trigger (something must decide *when* to send —
+   e.g. a Cloud Function reacting to Firestore writes for "assigned to
+   you" alerts), which is new infrastructure beyond anything in CLAUDE.md's
+   tech stack decisions, and this environment can't test real FCM delivery
+   either way (no real Firebase project — decision #6 — and no device/
+   simulator with Google Play services or APNs). Discussed the fork
+   (admin due-date reminders vs. cross-device assigned-to-you alerts;
+   local `flutter_local_notifications` vs. real `firebase_messaging`
+   plumbing) and decided to skip it for now rather than build blind, and
+   move on to milestone 16. Revisit once there's a real Firebase project
+   and an actual decision on the trigger mechanism.
+16. ✅ **UI polish — done (one concrete gap closed; more can follow on
+   request).** The original wireframe called for Home cards showing "item
+   count + completed count + recent activity" plus a floating add button
+   — neither was ever built (Home shipped as bare navigation cards in
+   milestone 4/5, and milestone 7 deliberately deferred its FAB pending
+   all five lists existing). Closed both:
+   `lib/features/home/domain/list_stats.dart` (`computeListStats`, a pure
+   function bucketing all items by `listType` into total/completed/most-
+   recent-title) now backs real card subtitles instead of nothing. The
+   FAB opens `QuickAddSheet` (`lib/features/home/presentation/widgets/`):
+   pick a list, add straight to it without leaving Home — Packing routes
+   through the same trip-picker the Packing tab uses first, every other
+   list opens its add sheet immediately. (Bug caught while writing this:
+   the first draft popped the chooser sheet then reused its own
+   `BuildContext` to open the next sheet — unsafe, since that context
+   belongs to a widget being torn down. Fixed so the chooser only returns
+   which list was picked, and the caller's own context does the
+   dispatching once the chooser has fully closed.)
+   Moved `allItemsProvider` from the search feature into
+   `lib/core/providers/firestore_providers.dart` since Home now needs the
+   same all-lists stream Search already did.
+   Tests: pure tests for `computeListStats`, plus widget tests for the
+   Home cards and both `QuickAddSheet` paths (direct-add and
+   add-via-trip-picker) under `test/features/home/`. `flutter analyze` and
+   `flutter test` both pass (63/63). Not verified: real device/emulator
+   run, same limitation as prior milestones. Scope note: this closed the
+   one concrete, spec'd gap (Home); no other polish (theming, animations,
+   app icon/branding assets) was done speculatively — say the word if
+   there's something specific to refine next.
 17. ⬜ Code review
 18. ⬜ Performance optimization
 
@@ -443,6 +482,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 14 is done. Awaiting explicit approval to start milestone 15
-(Notifications / FCM), per the
+Milestone 16 is done (15 deliberately skipped — see its entry above).
+Awaiting explicit approval to start milestone 17 (Code review), per the
 ground rule.

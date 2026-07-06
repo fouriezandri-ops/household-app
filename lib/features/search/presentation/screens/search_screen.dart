@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/firestore_providers.dart';
 import '../providers/search_providers.dart';
 import '../widgets/search_result_tile.dart';
 

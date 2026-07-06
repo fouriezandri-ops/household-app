@@ -1,17 +1,8 @@
-import 'package:riverpod/riverpod.dart' show Ref;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/domain/entities/item.dart';
-import '../../../../core/providers/firestore_providers.dart';
 
 part 'search_providers.g.dart';
-
-/// Every item across all five lists — search is the one screen that's
-/// deliberately not scoped to a single `listType`.
-@riverpod
-Stream<List<Item>> allItems(Ref ref) {
-  return ref.watch(itemsRepositoryProvider).watchAll();
-}
 
 @riverpod
 class SearchQueryController extends _$SearchQueryController {

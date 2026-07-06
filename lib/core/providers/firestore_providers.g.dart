@@ -232,5 +232,25 @@ class _ItemByIdProviderElement extends AutoDisposeStreamProviderElement<Item?>
   String get itemId => (origin as ItemByIdProvider).itemId;
 }
 
+String _$allItemsHash() => r'c04f7ebe5e214c5adb706175a03ec05c6fad428a';
+
+/// Every item across all five lists — used by Search (not scoped to a
+/// single `listType` by design) and by Home's per-list stats cards.
+///
+/// Copied from [allItems].
+@ProviderFor(allItems)
+final allItemsProvider = AutoDisposeStreamProvider<List<Item>>.internal(
+  allItems,
+  name: r'allItemsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$allItemsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AllItemsRef = AutoDisposeStreamProviderRef<List<Item>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

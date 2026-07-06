@@ -43,3 +43,10 @@ HouseholdRepository householdRepository(Ref ref) {
 Stream<Item?> itemById(Ref ref, String itemId) {
   return ref.watch(itemsRepositoryProvider).watchById(itemId);
 }
+
+/// Every item across all five lists — used by Search (not scoped to a
+/// single `listType` by design) and by Home's per-list stats cards.
+@riverpod
+Stream<List<Item>> allItems(Ref ref) {
+  return ref.watch(itemsRepositoryProvider).watchAll();
+}
