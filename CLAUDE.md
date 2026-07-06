@@ -212,7 +212,27 @@ service cloud.firestore {
    pass. Not verified: the emulators actually running end-to-end against
    the compiled app (no Android/iOS/Chrome toolchain in this environment —
    same limitation noted in milestone 5).
-7. ⬜ Grocery List
+7. ✅ **Grocery List — done.** `lib/features/grocery_list/`: real
+   `GroceryListScreen` replacing the placeholder, streaming
+   `ItemsRepository.watchByListType(ListType.grocery)`. Filter chips (All /
+   Not purchased / one per distinct category present) via a
+   `GroceryFilterController` + pure `applyGroceryFilter` function — a
+   single active filter, not combinable (full combinable filtering is
+   milestone 14). Rows (`GroceryListTile`): checkbox toggles `completed`,
+   strikethrough + greyed when done (decision #4), "added by" chip resolved
+   from `householdMembersProvider`, swipe-left (via `flutter_slidable`) to
+   reveal **Delete** with a confirmation dialog — **Move** is deliberately
+   not wired here (would be a stub); it lands with the destination-picker
+   UX in milestone 12. Add/edit is a modal bottom sheet
+   (`AddEditGroceryItemSheet`, per the navigation design) covering
+   title/quantity/unit/category/notes; editing preserves `addedBy`/
+   `dateAdded`/`history`.
+   Tests: pure filter-logic tests, plus `fake_cloud_firestore`-backed widget
+   tests (add via FAB, toggle complete, filter chip) under
+   `test/features/grocery_list/`. `flutter analyze` and `flutter test` both
+   pass. Not verified: real device/emulator run, or the swipe gesture and
+   keyboard/focus behavior interactively — same toolchain limitation as
+   prior milestones.
 8. ⬜ Packing List
 9. ⬜ Admin List
 10. ⬜ Products To Buy
@@ -232,5 +252,5 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 6 is done. Awaiting explicit approval to start milestone 7
-(Grocery List), per the ground rule.
+Milestone 7 is done. Awaiting explicit approval to start milestone 8
+(Packing List), per the ground rule.
