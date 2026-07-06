@@ -15,7 +15,10 @@ but today it's just for the two of us.
 ## Tech stack (confirmed)
 
 - **Frontend**: Flutter
-- **Backend**: Firebase (Cloud Firestore, Firebase Storage, FCM for push later)
+- **Backend**: Firebase (Cloud Firestore, FCM for push later). No Cloud
+  Storage — see decision #1: it now requires the paid Blaze plan even for
+  usage that stays within the free quota, and item photos were dropped
+  rather than pay for that.
 - **State management**: Riverpod (`AsyncNotifier` + `riverpod_generator` for
   Firestore streams)
 - **Navigation**: go_router
@@ -29,9 +32,16 @@ but today it's just for the two of us.
 
 ## Key decisions made during planning
 
-1. **Images (Products to Buy / Wishlist)**: manual photo upload only for v1
-   (stored in Firebase Storage). Auto-fetching website preview images/favicons
-   is a nice-to-have for a later polish milestone, not v1.
+1. **Images (Products to Buy / Wishlist)**: ~~manual photo upload only for
+   v1 (stored in Firebase Storage)~~ — **reversed post-launch.** Firebase
+   changed Cloud Storage to require the paid Blaze (pay-as-you-go) plan to
+   even enable it, regardless of whether actual usage stays inside the free
+   quota. Rather than add a billing account for a two-person app, the photo
+   feature (upload UI, thumbnails, `imageUrl` field, `firebase_storage`/
+   `image_picker` dependencies, `storage.rules`) was removed outright —
+   items are text-only now (title, store, price, category, notes, etc.).
+   Auto-fetching website preview images/favicons was already a deferred
+   nice-to-have, not v1, and stays deferred.
 2. **Auth**: PIN/passcode only — **no real Firebase Auth**. This was a
    deliberate, informed choice: it means Firestore security rules cannot
    verify identity via `request.auth.uid`, so rules are open
@@ -46,12 +56,16 @@ but today it's just for the two of us.
    confirmation, this was the working assumption in wireframes.
 5. **Move between lists**: implemented as swipe-left (reveals move + delete
    actions) or long-press (context menu) on any list row.
-6. **Firebase project**: this dev environment can't do the interactive
+6. **Firebase project**: ~~this dev environment can't do the interactive
    Google login `flutterfire configure` needs, so there's no real Firebase
-   project yet. The app runs against the local Firestore/Storage emulators
-   (`firebase.json`, `demo-household-app` project ID in
-   `lib/firebase_options.dart`) until you run `flutterfire configure`
-   yourself against a real project — see milestone 6 below.
+   project yet~~ — **superseded, see "Going live" below.** A real project
+   (`household-app-c121a`) now exists; its Android config was entered by
+   hand into `lib/firebase_options.dart` from the console/
+   `google-services.json` rather than via `flutterfire configure`, since
+   this environment still can't do the interactive Google login that tool
+   needs. The local Firestore emulator (`firebase.json`) is still used for
+   `flutter run` during development (see `main.dart`); release builds talk
+   to the real project directly.
 7. **Per-device identity without auth**: no Firebase Auth means no
    `request.auth.uid` to derive `addedBy`/`assignedTo`/`memberUids` from.
    Household and member IDs are fixed constants (`lib/core/constants/
@@ -80,7 +94,6 @@ items between lists a single field update instead of a delete-and-recreate.
     category: string | null
     priority: "low" | "medium" | "high" | null
     completed: boolean
-    imageUrl: string | null
     addedBy: uid
     dateAdded: timestamp
     dateCompleted: timestamp | null
@@ -570,13 +583,55 @@ stop and wait for explicit approval before continuing to the next one. Always
 explain pros/cons before choosing between implementation options. Produce
 production-quality, commented code throughout.
 
+## Going live (post-plan)
+
+With all 18 milestones done, work shifted from building features to actually
+getting the app running on two real Android phones — this dev environment has
+no Android SDK and can't reach `dl.google.com`/`firebase.google.com` (its
+network policy blocks both), so several things had to happen outside it:
+
+- **Real Firebase project**: `household-app-c121a` now exists (Firestore +
+  originally Storage enabled). Its Android config (API key, app ID, project
+  ID) was copied by hand from the console/`google-services.json` into
+  `lib/firebase_options.dart` — no `flutterfire configure`, per decision #6.
+- **Android package renamed** from the scaffold placeholder
+  `com.example.household_app` to `com.example.household_app1` (matching what
+  was registered in the Firebase console), including moving `MainActivity.kt`
+  to the matching package directory.
+- **CI build pipeline**: `.github/workflows/build-apk.yml` builds a release
+  APK on GitHub's own runners (which have the Android SDK, unlike this
+  environment) on every push, uploaded as a downloadable artifact — this is
+  how the installable APK actually gets produced, since it can't be built
+  here.
+- **Real member names**: the seeded household members in
+  `lib/core/constants/household_constants.dart` are now "Zandri" and "Renier"
+  (previously placeholder "Partner 1"/"Partner 2").
+- **Firebase Storage removed** (see decision #1): Firebase now requires the
+  paid Blaze plan to enable Cloud Storage at all, even for free-tier usage.
+  Rather than add a billing account, the photo feature was dropped entirely
+  — `firebase_storage`/`image_picker` dependencies,
+  `lib/core/data/image_upload_service.dart`,
+  `lib/core/providers/storage_providers.dart`, `storage.rules`, the
+  `imageUrl` field on `Item`, and the photo picker/thumbnail UI in
+  `ShoppableItemSheet`/`ItemListTile` are all gone. Products to Buy/Wishlist
+  items are text-only now. The app runs entirely on Firestore's free Spark
+  plan — no billing account needed.
+
 ## Next step
 
-Milestone 18 is done — **this was the last milestone in the original
-18-milestone plan.** The one deliberate exception is milestone 15
-(Notifications/FCM), skipped per your explicit direction pending a real
-Firebase project and a decision on the push trigger mechanism (see its
-entry above). Everything else in the plan is built, tested, and committed.
-No further milestone is queued — awaiting your direction on what's next
-(e.g. revisiting milestone 15, setting up a real Firebase project per
-decision #6, or a new feature/polish request).
+All 18 milestones are done, and the app now runs on a real (free-tier)
+Firebase project. What's left is entirely deployment, not code:
+
+1. Deploy `firestore.rules`/`firestore.indexes.json` to `household-app-c121a`
+   — needs `firebase login` from a machine this sandbox can't reach, or a
+   manual paste into the console's Rules tab.
+2. Download the latest APK artifact from the `build-apk.yml` GitHub Actions
+   run and sideload it on both phones.
+3. First-run setup on each phone: set a PIN, pick "who it is" (Zandri /
+   Renier).
+4. Smoke-test realtime sync between the two phones.
+
+The one deliberate scope exception is milestone 15 (Notifications/FCM),
+skipped per your explicit direction pending a decision on the push trigger
+mechanism (see its entry above) — revisit whenever that's wanted. No other
+feature work is queued; say the word if there's something new to add.

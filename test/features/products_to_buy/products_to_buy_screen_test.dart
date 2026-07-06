@@ -117,27 +117,4 @@ void main() {
     expect(find.text('Headphones'), findsOneWidget);
     expect(find.text('Blender'), findsNothing);
   });
-
-  testWidgets('an item with an imageUrl shows a thumbnail', (tester) async {
-    await itemsRepository.add(
-      Item(
-        id: '',
-        listType: ListType.productsToBuy,
-        title: 'Headphones',
-        addedBy: 'member-1',
-        dateAdded: DateTime.now(),
-        imageUrl: 'https://example.com/headphones.jpg',
-      ),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: overrides(),
-        child: const MaterialApp(home: ProductsToBuyScreen()),
-      ),
-    );
-    await tester.pump();
-
-    expect(find.byType(Image), findsOneWidget);
-  });
 }

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,12 +14,11 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (kDebugMode) {
-    // Local Firestore/Storage emulators (see firebase.json) for `flutter run`
-    // during development. Release builds (`flutter build apk --release`,
-    // used for the two real phones) skip this block automatically — they
-    // go straight to whatever project is configured in firebase_options.dart.
+    // Local Firestore emulator (see firebase.json) for `flutter run` during
+    // development. Release builds (`flutter build apk --release`, used for
+    // the two real phones) skip this automatically — they go straight to
+    // whatever project is configured in firebase_options.dart.
     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-    await FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
   }
 
   runApp(const ProviderScope(child: HouseholdApp()));

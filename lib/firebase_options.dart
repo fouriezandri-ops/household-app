@@ -3,9 +3,10 @@ import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatf
 
 /// Real Android config for the `household-app-c121a` Firebase project
 /// (copied from `google-services.json` — no `flutterfire configure` needed).
-/// `main.dart` only points Firestore/Storage at the local emulators in debug
-/// builds, so release builds (the ones installed on the two phones) use this
-/// config directly.
+/// `main.dart` only points Firestore at the local emulator in debug builds,
+/// so release builds (the ones installed on the two phones) use this config
+/// directly. No `storageBucket` — Cloud Storage isn't used (it requires the
+/// paid Blaze plan; item photos were dropped instead, see item.dart).
 ///
 /// The iOS block is still an unused placeholder — iOS isn't part of the
 /// current plan (no Mac available), so it's left as-is rather than filled in
@@ -35,7 +36,6 @@ class DefaultFirebaseOptions {
     appId: '1:726684429457:android:e7d82ad22f6e53dec96330',
     messagingSenderId: '726684429457',
     projectId: 'household-app-c121a',
-    storageBucket: 'household-app-c121a.firebasestorage.app',
   );
 
   static const ios = FirebaseOptions(
@@ -43,7 +43,6 @@ class DefaultFirebaseOptions {
     appId: '1:000000000000:ios:0000000000000000000000',
     messagingSenderId: '000000000000',
     projectId: 'demo-household-app',
-    storageBucket: 'demo-household-app.appspot.com',
     iosBundleId: 'com.example.householdApp',
   );
 }

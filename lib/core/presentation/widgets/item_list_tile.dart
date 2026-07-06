@@ -7,7 +7,6 @@ import '../../../features/household/presentation/providers/current_member_provid
 import '../../../features/move_between_lists/presentation/widgets/move_item_sheet.dart';
 import '../../domain/entities/item.dart';
 import '../../providers/firestore_providers.dart';
-import '../../providers/storage_providers.dart';
 
 /// Common row for any list: a completion checkbox (strikethrough + greyed
 /// when done, per decision #4), an "added by" chip, swipe-left to reveal
@@ -48,16 +47,6 @@ class ItemListTile extends ConsumerWidget {
     );
     if (confirmed ?? false) {
       await ref.read(itemsRepositoryProvider).delete(item.id);
-      if (item.imageUrl != null) {
-        // Best-effort: the item is already gone from the user's
-        // perspective, so a Storage hiccup here shouldn't surface as a
-        // failed delete — it would just leave the blob to clean up later.
-        try {
-          await ref.read(imageUploadServiceProvider).deleteItemImage(item.id);
-        } catch (_) {
-          // Ignored — see comment above.
-        }
-      }
     }
   }
 
@@ -95,40 +84,12 @@ class ItemListTile extends ConsumerWidget {
         ],
       ),
       child: ListTile(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (item.imageUrl != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  item.imageUrl!,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  // Decode at the tile's actual on-screen size (in physical
-                  // pixels) rather than full resolution — these are manually
-                  // uploaded photos (milestone 10) that can be several
-                  // megapixels, and this is a 40x40 thumbnail.
-                  cacheWidth: (40 * MediaQuery.of(context).devicePixelRatio).round(),
-                  cacheHeight: (40 * MediaQuery.of(context).devicePixelRatio).round(),
-                  errorBuilder: (context, error, stackTrace) => const SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Icon(Icons.broken_image_outlined),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            Checkbox(
-              value: item.completed,
-              onChanged: (value) => ref.read(itemsRepositoryProvider).updateFields(item.id, {
-                'completed': value ?? false,
-                'dateCompleted': (value ?? false) ? Timestamp.fromDate(DateTime.now()) : null,
-              }),
-            ),
-          ],
+        leading: Checkbox(
+          value: item.completed,
+          onChanged: (value) => ref.read(itemsRepositoryProvider).updateFields(item.id, {
+            'completed': value ?? false,
+            'dateCompleted': (value ?? false) ? Timestamp.fromDate(DateTime.now()) : null,
+          }),
         ),
         title: Text(
           item.title,

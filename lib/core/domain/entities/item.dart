@@ -20,7 +20,6 @@ class Item {
     this.category,
     this.priority,
     this.completed = false,
-    this.imageUrl,
     this.dateCompleted,
     this.details = const ItemDetails(),
     this.history = const [],
@@ -33,7 +32,6 @@ class Item {
   final String? category;
   final Priority? priority;
   final bool completed;
-  final String? imageUrl;
   final String addedBy;
   final DateTime dateAdded;
   final DateTime? dateCompleted;
@@ -64,7 +62,6 @@ class Item {
       category: data['category'] as String?,
       priority: Priority.fromValue(data['priority'] as String?),
       completed: data['completed'] as bool? ?? false,
-      imageUrl: data['imageUrl'] as String?,
       addedBy: data['addedBy'] as String,
       dateAdded: (data['dateAdded'] as Timestamp).toDate(),
       dateCompleted: (data['dateCompleted'] as Timestamp?)?.toDate(),
@@ -85,7 +82,6 @@ class Item {
       'category': category,
       'priority': priority?.name,
       'completed': completed,
-      'imageUrl': imageUrl,
       'addedBy': addedBy,
       'dateAdded': Timestamp.fromDate(dateAdded),
       'dateCompleted': dateCompleted == null ? null : Timestamp.fromDate(dateCompleted!),
