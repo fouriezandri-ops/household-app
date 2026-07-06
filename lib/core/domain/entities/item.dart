@@ -87,9 +87,9 @@ class Item {
 }
 
 /// Fields specific to one or more list types — see the comment on each
-/// field for which list(s) use it. Carried over (not reset) when an item
-/// moves to a list that shares some of these fields, e.g. wishlist ->
-/// products-to-buy keeps price/websiteUrl/store.
+/// field for which list(s) use it. [filterForListType] keeps whichever of
+/// these apply to a destination list and drops the rest, e.g. wishlist ->
+/// products-to-buy keeps price/websiteUrl/store but adds no desiredQuantity.
 class ItemDetails {
   const ItemDetails({
     this.quantity,
@@ -115,30 +115,31 @@ class ItemDetails {
   final double? price; // products_to_buy / wishlist
   final int? desiredQuantity; // products_to_buy
 
-  ItemDetails copyWith({
-    int? quantity,
-    String? unit,
-    String? tripId,
-    String? description,
-    DateTime? dueDate,
-    String? assignedTo,
-    String? store,
-    String? websiteUrl,
-    double? price,
-    int? desiredQuantity,
-  }) {
-    return ItemDetails(
-      quantity: quantity ?? this.quantity,
-      unit: unit ?? this.unit,
-      tripId: tripId ?? this.tripId,
-      description: description ?? this.description,
-      dueDate: dueDate ?? this.dueDate,
-      assignedTo: assignedTo ?? this.assignedTo,
-      store: store ?? this.store,
-      websiteUrl: websiteUrl ?? this.websiteUrl,
-      price: price ?? this.price,
-      desiredQuantity: desiredQuantity ?? this.desiredQuantity,
-    );
+  // No `copyWith` here either — see the note on `Item` above; unused, and
+  // the same nullable-field footgun. `filterForListType` below builds a
+  // fresh `ItemDetails` for exactly the same reason.
+
+  /// Keeps only the fields relevant to [listType], dropping the rest —
+  /// used when moving an item to a different list (see
+  /// `ItemsRepository.moveToList` and `MoveItemSheet`), so e.g. a trip's
+  /// `tripId` doesn't linger on an item after it's moved out of Packing.
+  ItemDetails filterForListType(ListType listType) {
+    return switch (listType) {
+      ListType.grocery => ItemDetails(quantity: quantity, unit: unit),
+      ListType.packing => ItemDetails(tripId: tripId),
+      ListType.admin => ItemDetails(
+        description: description,
+        dueDate: dueDate,
+        assignedTo: assignedTo,
+      ),
+      ListType.productsToBuy => ItemDetails(
+        store: store,
+        websiteUrl: websiteUrl,
+        price: price,
+        desiredQuantity: desiredQuantity,
+      ),
+      ListType.wishlist => ItemDetails(store: store, websiteUrl: websiteUrl, price: price),
+    };
   }
 
   static ItemDetails fromFirestore(Map<String, dynamic> data) {

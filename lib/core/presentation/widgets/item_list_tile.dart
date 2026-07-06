@@ -4,14 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../features/household/presentation/providers/current_member_provider.dart';
+import '../../../features/move_between_lists/presentation/widgets/move_item_sheet.dart';
 import '../../domain/entities/item.dart';
 import '../../providers/firestore_providers.dart';
 
 /// Common row for any list: a completion checkbox (strikethrough + greyed
 /// when done, per decision #4), an "added by" chip, swipe-left to reveal
-/// **Delete** with a confirmation dialog, and tap to edit. Move is
-/// deliberately not offered here — it needs the destination-picker UX from
-/// milestone 12, and a stub button would be half-finished.
+/// **Move** and **Delete** (the latter behind a confirmation dialog), and
+/// tap to edit.
 ///
 /// [subtitleParts] are joined with " · "; each list decides what's
 /// relevant (grocery: quantity/unit + category; packing: just category).
@@ -65,8 +65,15 @@ class ItemListTile extends ConsumerWidget {
       key: ValueKey(item.id),
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
-        extentRatio: 0.25,
+        extentRatio: 0.5,
         children: [
+          SlidableAction(
+            onPressed: (context) => showMoveItemSheet(context, item),
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+            icon: Icons.swap_horiz,
+            label: 'Move',
+          ),
           SlidableAction(
             onPressed: (context) => _confirmDelete(context, ref),
             backgroundColor: Theme.of(context).colorScheme.error,

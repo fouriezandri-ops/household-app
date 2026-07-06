@@ -346,7 +346,43 @@ service cloud.firestore {
    products_to_buy tests were unaffected by the refactor. `flutter analyze`
    and `flutter test` both pass (39/39). Not verified: real device/emulator
    run, same limitation as prior milestones.
-12. ⬜ Move-between-lists functionality
+12. ✅ **Move-between-lists — done.** The app's standout feature per the
+   original brief. `ItemListTile`'s swipe-left now reveals **Move**
+   alongside Delete (`extentRatio` widened to 0.5 for two actions); Move
+   opens `lib/features/move_between_lists/presentation/widgets/
+   move_item_sheet.dart` (`MoveItemSheet`), listing the other four lists.
+   Picking a non-Packing target moves immediately; picking Packing opens a
+   second step (`showTripPickerSheet`, `lib/features/packing_list/
+   presentation/widgets/trip_picker_sheet.dart`, reusable wherever a trip
+   needs picking) since a packing item needs a `tripId`.
+   Field-carrying rule (`ItemDetails.filterForListType`, `lib/core/domain/
+   entities/item.dart`): every top-level `Item` field (title, category,
+   priority, notes, imageUrl, addedBy, dateAdded, completed,
+   dateCompleted) always carries over unchanged; only `details` gets
+   filtered down to whichever fields the destination list actually uses
+   (e.g. wishlist -> products-to-buy keeps store/websiteUrl/price, adds no
+   desiredQuantity; packing's `tripId` is replaced with the newly-picked
+   one and dropped entirely for every other destination). `history` gets
+   the new entry appended via the existing `ItemsRepository.moveToList`
+   from milestone 6 — nothing new needed there.
+   While adding this, also deleted `ItemDetails.copyWith` — same
+   unused/never-actually-clears-null footgun as `Item.copyWith`, removed
+   in milestone 10.
+   Tests: pure unit tests for `filterForListType` (one per destination,
+   proving irrelevant fields are actually dropped, not just absent to
+   start with) in `test/core/domain/`; widget tests in
+   `test/features/move_between_lists/` for both the direct-move and
+   move-to-packing-via-trip-picker paths; an integration test in
+   `test/core/presentation/item_list_tile_test.dart` proving the swipe
+   action is actually wired (not just that the sheet works in isolation).
+   **Test-writing pitfall hit and fixed:** that last test initially hung —
+   `await Slidable.of(context)!.openEndActionPane()` awaits an animation
+   that only advances via `tester.pump()`, so awaiting it directly before
+   any pump deadlocks; fixed by firing it unawaited and driving the
+   animation with `pumpAndSettle()` afterward instead.
+   `flutter analyze` and `flutter test` both pass (47/47). Not verified:
+   the actual swipe gesture or trip-picker UX on a real device/emulator —
+   same limitation as prior milestones.
 13. ⬜ Search
 14. ⬜ Filters
 15. ⬜ Notifications (FCM)
@@ -361,6 +397,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 11 is done — all five lists exist now. Awaiting explicit
-approval to start milestone 12 (move-between-lists functionality), per the
+Milestone 12 is done. Awaiting explicit approval to start milestone 13
+(Search), per the
 ground rule.
