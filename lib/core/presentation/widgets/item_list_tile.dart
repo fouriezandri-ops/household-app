@@ -106,6 +106,12 @@ class ItemListTile extends ConsumerWidget {
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
+                  // Decode at the tile's actual on-screen size (in physical
+                  // pixels) rather than full resolution — these are manually
+                  // uploaded photos (milestone 10) that can be several
+                  // megapixels, and this is a 40x40 thumbnail.
+                  cacheWidth: (40 * MediaQuery.of(context).devicePixelRatio).round(),
+                  cacheHeight: (40 * MediaQuery.of(context).devicePixelRatio).round(),
                   errorBuilder: (context, error, stackTrace) => const SizedBox(
                     width: 40,
                     height: 40,

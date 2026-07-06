@@ -359,15 +359,28 @@ class _ImagePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Decode at the preview's actual on-screen size (in physical pixels)
+    // rather than full resolution — the source photo can be several
+    // megapixels, and this preview is only ever shown at 120x120.
+    final cacheSize = (120 * MediaQuery.of(context).devicePixelRatio).round();
     Widget content;
     if (bytes != null) {
-      content = Image.memory(bytes!, width: 120, height: 120, fit: BoxFit.cover);
+      content = Image.memory(
+        bytes!,
+        width: 120,
+        height: 120,
+        fit: BoxFit.cover,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
+      );
     } else if (existingUrl != null) {
       content = Image.network(
         existingUrl!,
         width: 120,
         height: 120,
         fit: BoxFit.cover,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
         errorBuilder: (context, error, stackTrace) =>
             const Icon(Icons.broken_image_outlined, size: 48),
       );

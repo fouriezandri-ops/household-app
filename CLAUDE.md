@@ -525,7 +525,45 @@ service cloud.firestore {
    validation, unit-only display); the cleanup required no new tests since
    existing per-list screen tests now exercise the shared implementation
    directly. `flutter analyze` and `flutter test` both pass (71/71).
-18. ⬜ Performance optimization
+18. ✅ **Performance optimization — done. This was the last milestone in the
+   plan.** Rather than a fresh audit, acted on the three efficiency-angle
+   findings the milestone-17 code review surfaced but didn't make the
+   top-10 cut (correctness bugs were prioritized there):
+   1. **Fixed** — `HouseholdRepository.ensureSeeded()` did 3 sequential
+      `await`s (the household-doc check/set, then a `for` loop of 2
+      member-doc checks/sets) on every cold start, even though all 3 are
+      independent. Split into `_ensureHouseholdSeeded()` +
+      `_ensureMemberSeeded()` and run all 3 concurrently via `Future.wait`,
+      each still independently idempotent (check-then-set).
+   2. **Fixed** — `Image.network`/`Image.memory` calls for item photos
+      (manually uploaded, decision #1, so easily several megapixels) had
+      no `cacheWidth`/`cacheHeight`, meaning Flutter fully decoded the
+      source resolution just to downscale it for display. Added
+      device-pixel-ratio-scaled `cacheWidth`/`cacheHeight` to
+      `ItemListTile`'s 40x40 row thumbnail and `ShoppableItemSheet`'s
+      120x120 add/edit preview (both the picked-photo `Image.memory` and
+      the already-uploaded `Image.network` branch).
+   3. **Won't fix (documented tradeoff)** — Home and Search watch
+      `allItemsProvider` while each list screen watches
+      `itemsByListTypeProvider(listType)`; because the bottom nav is a
+      `StatefulShellRoute.indexedStack`, every tab you've visited stays
+      mounted, so visiting Home (or Search) and any list screen in the
+      same session runs two overlapping Firestore listeners over
+      intersecting data. This is inherent to preserving tab/scroll state
+      across the bottom nav (the explicit tradeoff `IndexedStack` makes),
+      and at this app's real scale — two users, dozens of items — the
+      extra listener is immaterial. Restructuring Home to derive its
+      stats from 5 separate `itemsByListType` streams instead of 1
+      `allItems` stream would add real complexity (juggling 5
+      `AsyncValue`s instead of 1) for a gain that isn't worth it here, so
+      left as-is rather than fixed speculatively.
+   Tests: existing `household_repository_test.dart` coverage
+   (`ensureSeeded` creates-both-docs and idempotent-second-call) continues
+   to pass unchanged against the parallelized implementation, since both
+   tests only assert on end state, not call order. No new tests needed for
+   the image-decode-size fix — it's a rendering-hint parameter with no
+   observable behavior change under `fake_cloud_firestore`/widget tests.
+   `flutter analyze` and `flutter test` both pass (71/71).
 
 **Ground rule carried over from the original brief:** after every milestone,
 stop and wait for explicit approval before continuing to the next one. Always
@@ -534,6 +572,11 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 17 is done. Awaiting explicit approval to start milestone 18
-(Performance optimization), per the
-ground rule.
+Milestone 18 is done — **this was the last milestone in the original
+18-milestone plan.** The one deliberate exception is milestone 15
+(Notifications/FCM), skipped per your explicit direction pending a real
+Firebase project and a decision on the push trigger mechanism (see its
+entry above). Everything else in the plan is built, tested, and committed.
+No further milestone is queued — awaiting your direction on what's next
+(e.g. revisiting milestone 15, setting up a real Firebase project per
+decision #6, or a new feature/polish request).

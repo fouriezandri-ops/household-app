@@ -25,8 +25,14 @@ class HouseholdRepository {
   /// Creates `/households/default` and the two seeded `/users/{uid}` docs
   /// if they don't already exist. Idempotent and safe to call from both
   /// partners' devices on first launch — see household_constants.dart for
-  /// why the IDs are fixed rather than generated.
+  /// why the IDs are fixed rather than generated. The household doc and
+  /// each member doc are independent, so their check-then-set operations
+  /// run concurrently rather than one after another.
   Future<void> ensureSeeded() async {
+    await Future.wait([_ensureHouseholdSeeded(), ...defaultMemberSeeds.map(_ensureMemberSeeded)]);
+  }
+
+  Future<void> _ensureHouseholdSeeded() async {
     final householdDoc = _households.doc(householdId);
     if (!(await householdDoc.get()).exists) {
       await householdDoc.set(
@@ -38,14 +44,14 @@ class HouseholdRepository {
         ),
       );
     }
+  }
 
-    for (final seed in defaultMemberSeeds) {
-      final memberDoc = _users.doc(seed.uid);
-      if (!(await memberDoc.get()).exists) {
-        await memberDoc.set(
-          HouseholdMember(uid: seed.uid, displayName: seed.displayName, colorTag: seed.colorTag),
-        );
-      }
+  Future<void> _ensureMemberSeeded(({String uid, String displayName, String colorTag}) seed) async {
+    final memberDoc = _users.doc(seed.uid);
+    if (!(await memberDoc.get()).exists) {
+      await memberDoc.set(
+        HouseholdMember(uid: seed.uid, displayName: seed.displayName, colorTag: seed.colorTag),
+      );
     }
   }
 
