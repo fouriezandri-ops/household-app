@@ -383,7 +383,30 @@ service cloud.firestore {
    `flutter analyze` and `flutter test` both pass (47/47). Not verified:
    the actual swipe gesture or trip-picker UX on a real device/emulator —
    same limitation as prior milestones.
-13. ⬜ Search
+13. ✅ **Search — done.** Replaces the `/search` placeholder. Cross-list
+   by design (the one screen not scoped to a single `listType`):
+   `allItemsProvider` streams `ItemsRepository.watchAll()`, and a pure
+   `searchItems(items, query)` function does a case-insensitive substring
+   match against title/category/notes — client-side filtering, not a
+   search index, since a household's item count doesn't warrant one.
+   Empty query shows a prompt rather than every item. Each result
+   (`SearchResultTile`) shows which list it's from and dispatches to that
+   list's own add/edit sheet by `listType` when tapped — the one place
+   that needs to switch on list type at runtime, since every other screen
+   already knows its own type at compile time.
+   Along the way, extracted the `ListType -> (label, icon)` mapping
+   `MoveItemSheet` had inlined (milestone 12) into shared extensions:
+   `ListTypeDisplayName` (`lib/core/domain/entities/list_type.dart`, no
+   Flutter dependency) and `ListTypeIcon`
+   (`lib/core/presentation/list_type_icons.dart`, split out specifically
+   because `IconData` would otherwise pull Flutter into the domain layer).
+   `MoveItemSheet` now uses these too instead of its own copy.
+   Tests: pure tests for `searchItems` (empty query, case-insensitivity,
+   category/notes matching, no-match) plus widget tests for the screen
+   (filtering across lists, tapping a result opens the correct list's
+   sheet) under `test/features/search/`. `flutter analyze` and `flutter
+   test` both pass (53/53). Not verified: real device/emulator run, same
+   limitation as prior milestones.
 14. ⬜ Filters
 15. ⬜ Notifications (FCM)
 16. ⬜ UI polish
@@ -397,6 +420,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 12 is done. Awaiting explicit approval to start milestone 13
-(Search), per the
+Milestone 13 is done. Awaiting explicit approval to start milestone 14
+(Filters), per the
 ground rule.

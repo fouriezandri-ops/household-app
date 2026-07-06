@@ -18,3 +18,16 @@ enum ListType {
     );
   }
 }
+
+/// Human-readable name — domain-safe (no Flutter dependency); see
+/// `lib/core/presentation/list_type_icons.dart` for the matching icon,
+/// which does need one.
+extension ListTypeDisplayName on ListType {
+  String get displayName => switch (this) {
+    ListType.grocery => 'Grocery',
+    ListType.packing => 'Packing',
+    ListType.admin => 'Admin To-Do',
+    ListType.productsToBuy => 'Products to Buy',
+    ListType.wishlist => 'Wishlist',
+  };
+}

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/domain/entities/item.dart';
 import '../../../../core/domain/entities/list_type.dart';
+import '../../../../core/presentation/list_type_icons.dart';
 import '../../../../core/providers/firestore_providers.dart';
 import '../../../packing_list/presentation/widgets/trip_picker_sheet.dart';
 
@@ -22,22 +23,6 @@ class MoveItemSheet extends ConsumerWidget {
   const MoveItemSheet({super.key, required this.item});
 
   final Item item;
-
-  static const _listLabels = {
-    ListType.grocery: 'Grocery',
-    ListType.packing: 'Packing',
-    ListType.admin: 'Admin To-Do',
-    ListType.productsToBuy: 'Products to Buy',
-    ListType.wishlist: 'Wishlist',
-  };
-
-  static const _listIcons = {
-    ListType.grocery: Icons.local_grocery_store_outlined,
-    ListType.packing: Icons.luggage_outlined,
-    ListType.admin: Icons.checklist_outlined,
-    ListType.productsToBuy: Icons.shopping_bag_outlined,
-    ListType.wishlist: Icons.favorite_border,
-  };
 
   Future<void> _moveTo(BuildContext context, WidgetRef ref, ListType target) async {
     if (target == ListType.packing) {
@@ -75,8 +60,8 @@ class MoveItemSheet extends ConsumerWidget {
           ),
           for (final target in targets)
             ListTile(
-              leading: Icon(_listIcons[target]),
-              title: Text(_listLabels[target]!),
+              leading: Icon(target.icon),
+              title: Text(target.displayName),
               onTap: () => _moveTo(context, ref, target),
             ),
         ],
