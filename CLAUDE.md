@@ -147,7 +147,21 @@ service cloud.firestore {
    gate (`/pin`) guarded by a `GoRouter` redirect on cold start plus a
    lifecycle-based re-lock after an inactivity threshold. Full route table
    and rationale in `docs/navigation.md`.
-5. ⬜ Authentication (PIN gate, open Firestore rules)
+5. ✅ **Authentication — done.** Flutter project scaffolded (`flutter create`,
+   org `com.example` — placeholder, change before store submission) as the
+   prerequisite for any code. PIN gate implemented per `docs/navigation.md`:
+   `lib/features/auth/` (domain `PinRepository` interface, data layer
+   hashing the PIN with salted PBKDF2-HMAC-SHA256 and storing it via
+   `flutter_secure_storage` — Keychain/Keystore, never plaintext —
+   presentation layer with a Riverpod `AuthController` AsyncNotifier and the
+   `PinGateScreen`/keypad UI). `lib/core/router/app_router.dart` wires the
+   go_router redirect + `lib/core/lifecycle/inactivity_lock_observer.dart`
+   handles the inactivity re-lock. `firestore.rules` added at repo root with
+   the open rules from decision #2. Unit + widget tests in `test/features/auth/`;
+   `flutter analyze` and `flutter test` both pass. Not verified: an actual
+   run on a device/emulator/Chrome — this environment has no Android/iOS/
+   Chrome toolchain installed, only the Dart/Flutter SDK for analysis and
+   testing.
 6. ⬜ Shared database setup (Firebase project, repository pattern base classes)
 7. ⬜ Grocery List
 8. ⬜ Packing List
@@ -169,5 +183,6 @@ production-quality, commented code throughout.
 
 ## Next step
 
-Milestone 4 is done. Awaiting explicit approval to start milestone 5
-(authentication — PIN gate, open Firestore rules), per the ground rule.
+Milestone 5 is done. Awaiting explicit approval to start milestone 6 (shared
+database setup — Firebase project, repository pattern base classes), per the
+ground rule.
