@@ -135,12 +135,20 @@ Moving an item (e.g. Wishlist → Products to Buy):
 in the index definitions themselves — `items`/`trips` are subcollections
 under `/households/{householdId}`, so the parent path already scopes every
 query and a collection-scoped composite index is enough):
-- `items`: `listType` + `completed` + `dateAdded` (desc) — for the "not
-  purchased" filter chip, milestone 14
-- `items`: `listType` + `priority`
-- `items`: `listType` + `category`
+- `items`: `listType` + `dateAdded` (desc) — every list screen's base query
+  (`ItemsRepository.watchByListType`); missing until a real Firebase project
+  surfaced the gap, since the emulator doesn't enforce indexes.
+- `items`: `listType` + `details.tripId` + `dateAdded` (desc) — packing's
+  per-trip query (`watchByTripId`)
 - `trips`: single-field `startDate` (desc) ordering only — Firestore
   auto-indexes this, no composite index needed
+
+Filter chips (not-completed/category/priority, milestone 14) are applied
+client-side over an already-fetched list (`applyItemFilter`), not as
+Firestore query filters, so `completed`/`category`/`priority` don't need
+indexes of their own — three unused composite indexes speculating otherwise
+were removed from `firestore.indexes.json` when this was double-checked
+against the actual queries in `items_repository.dart`.
 
 **Security rules (open, per decision #2 above):**
 ```
