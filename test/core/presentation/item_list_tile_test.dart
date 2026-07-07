@@ -52,4 +52,82 @@ void main() {
 
     expect(find.text('Move "Milk" to…'), findsOneWidget);
   });
+
+  testWidgets('long-pressing and tapping Move opens the move-between-lists sheet', (
+    tester,
+  ) async {
+    final firestore = FakeFirebaseFirestore();
+    final itemsRepository = ItemsRepository(firestore: firestore, householdId: 'test-household');
+    final item = Item(
+      id: 'item-1',
+      listType: ListType.grocery,
+      title: 'Milk',
+      addedBy: 'member-1',
+      dateAdded: DateTime.now(),
+    );
+    await itemsRepository.set(item.id, item);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          itemsRepositoryProvider.overrideWithValue(itemsRepository),
+          householdRepositoryProvider.overrideWithValue(
+            HouseholdRepository(firestore: firestore, householdId: 'test-household'),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(body: ItemListTile(item: item, onTap: () {})),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('Milk'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(ListTile, 'Move'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Move "Milk" to…'), findsOneWidget);
+  });
+
+  testWidgets('long-pressing and tapping Delete removes the item after confirmation', (
+    tester,
+  ) async {
+    final firestore = FakeFirebaseFirestore();
+    final itemsRepository = ItemsRepository(firestore: firestore, householdId: 'test-household');
+    final item = Item(
+      id: 'item-1',
+      listType: ListType.grocery,
+      title: 'Milk',
+      addedBy: 'member-1',
+      dateAdded: DateTime.now(),
+    );
+    await itemsRepository.set(item.id, item);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          itemsRepositoryProvider.overrideWithValue(itemsRepository),
+          householdRepositoryProvider.overrideWithValue(
+            HouseholdRepository(firestore: firestore, householdId: 'test-household'),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(body: ItemListTile(item: item, onTap: () {})),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('Milk'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(ListTile, 'Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+    await tester.pumpAndSettle();
+
+    expect(await itemsRepository.getById(item.id), isNull);
+  });
 }

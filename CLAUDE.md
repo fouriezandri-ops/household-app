@@ -624,22 +624,50 @@ network policy blocks both), so several things had to happen outside it:
   `ShoppableItemSheet`/`ItemListTile` are all gone. Products to Buy/Wishlist
   items are text-only now. The app runs entirely on Firestore's free Spark
   plan — no billing account needed.
+- **Missing composite index found and fixed via real-device testing**: once
+  running against the real project, Grocery/Admin/Products/Wishlist all
+  failed with a missing-index error — `ItemsRepository.watchByListType`'s
+  `where('listType', ...).orderBy('dateAdded', desc)` needs a composite
+  index that had never actually been defined in `firestore.indexes.json`
+  (only Packing's separate query had a matching one, which is why only
+  Packing worked). Fixed in the file and manually created + enabled in the
+  console (this sandbox still can't reach Firebase to deploy it directly).
+  While fixing it, also removed three composite indexes
+  (`listType`+`completed`, `listType`+`priority`, `listType`+`category`)
+  that turned out to be dead weight — the not-completed/category/priority
+  filter chips are applied client-side, never as Firestore query filters,
+  so those indexes cost write-time overhead for zero benefit.
+- **Error messages made selectable**: every screen's stream-error view was
+  a plain `Text`, which isn't selectable in Flutter by default — there was
+  no way to copy an error message (e.g. to grab a Firestore "create this
+  index" link) on a phone. Added a shared `AsyncErrorView`
+  (`lib/core/presentation/widgets/`, `SelectableText`) used everywhere that
+  pattern was duplicated.
+- **Long-press context menu added for Move/Delete**: decision #5 always
+  specified swipe-left *or* long-press as the two ways to reach Move/Delete
+  on a list row, but only swipe-left (via `flutter_slidable`) was ever
+  built — long-press did nothing. Added it as a real second path
+  (`ItemListTile._showContextMenu`, a modal bottom sheet with Move/Delete),
+  since swipe gestures can be unreliable on real devices (e.g. competing
+  with a phone's edge-swipe-back gesture). Both paths call the same
+  `_confirmDelete`/`showMoveItemSheet` logic, so there's no duplicated
+  behavior, just two triggers for it.
 
 ## Next step
 
-All 18 milestones are done, and the app now runs on a real (free-tier)
-Firebase project. What's left is entirely deployment, not code:
+All 18 milestones are done and the app is now genuinely running on two real
+phones against the real Firebase project — the last few changes above were
+all bugs/gaps found through actual on-device use rather than planning ahead.
+Nothing else is currently broken or queued:
 
-1. Deploy `firestore.rules`/`firestore.indexes.json` to `household-app-c121a`
-   — needs `firebase login` from a machine this sandbox can't reach, or a
-   manual paste into the console's Rules tab.
-2. Download the latest APK artifact from the `build-apk.yml` GitHub Actions
-   run and sideload it on both phones.
-3. First-run setup on each phone: set a PIN, pick "who it is" (Zandri /
-   Renier).
-4. Smoke-test realtime sync between the two phones.
+- Rules and indexes are deployed (indexes created by hand via the console
+  after this sandbox's inability to reach Firebase made `firebase deploy`
+  impossible from here; `firestore.rules`/`firestore.indexes.json` in the
+  repo are the source of truth if they ever need recreating).
+- Both phones have the app installed and picked their member identity.
 
 The one deliberate scope exception is milestone 15 (Notifications/FCM),
 skipped per your explicit direction pending a decision on the push trigger
 mechanism (see its entry above) — revisit whenever that's wanted. No other
-feature work is queued; say the word if there's something new to add.
+feature work is queued; say the word if there's something new to add or
+another rough edge turns up in real use.

@@ -8,10 +8,15 @@ import '../../../features/move_between_lists/presentation/widgets/move_item_shee
 import '../../domain/entities/item.dart';
 import '../../providers/firestore_providers.dart';
 
+enum _ItemAction { move, delete }
+
 /// Common row for any list: a completion checkbox (strikethrough + greyed
-/// when done, per decision #4), an "added by" chip, swipe-left to reveal
-/// **Move** and **Delete** (the latter behind a confirmation dialog), and
-/// tap to edit.
+/// when done, per decision #4), an "added by" chip, tap to edit, and
+/// **Move**/**Delete** (the latter behind a confirmation dialog) reachable
+/// two ways per decision #5 — swipe-left, or long-press for a context menu.
+/// The long-press alternative exists because swipe-left can be unreliable
+/// on real devices (e.g. it can compete with a phone's edge-swipe-back
+/// gesture), and decision #5 always specified both.
 ///
 /// [subtitleParts] are joined with " · "; each list decides what's
 /// relevant (grocery: quantity/unit + category; packing: just category).
@@ -26,6 +31,40 @@ class ItemListTile extends ConsumerWidget {
   final Item item;
   final VoidCallback onTap;
   final List<String> subtitleParts;
+
+  Future<void> _showContextMenu(BuildContext context, WidgetRef ref) async {
+    final action = await showModalBottomSheet<_ItemAction>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.swap_horiz),
+              title: const Text('Move'),
+              onTap: () => Navigator.of(context).pop(_ItemAction.move),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+              title: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              onTap: () => Navigator.of(context).pop(_ItemAction.delete),
+            ),
+          ],
+        ),
+      ),
+    );
+    // The context menu sheet has already closed by the time a choice comes
+    // back, so this context is safe to reuse for the next sheet/dialog —
+    // but only after confirming it's still mounted (see the QuickAddSheet
+    // fix, milestone 16, for why that check matters here).
+    if (!context.mounted || action == null) return;
+    switch (action) {
+      case _ItemAction.move:
+        showMoveItemSheet(context, item);
+      case _ItemAction.delete:
+        _confirmDelete(context, ref);
+    }
+  }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
@@ -100,6 +139,7 @@ class ItemListTile extends ConsumerWidget {
         subtitle: subtitleParts.isEmpty ? null : Text(subtitleParts.join(' · ')),
         trailing: addedByName == null ? null : Chip(label: Text(addedByName)),
         onTap: onTap,
+        onLongPress: () => _showContextMenu(context, ref),
       ),
     );
   }
