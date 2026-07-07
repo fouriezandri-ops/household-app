@@ -10,7 +10,7 @@ bottom bar.
 ## Route table
 
 ```
-/pin                                    — PIN gate, outside the shell (no bottom nav)
+/pick-member                            — first-run "who are you?" screen, outside the shell (no bottom nav)
 
 ShellRoute (StatefulShellRoute.indexedStack) — bottom nav: Home / Search / Settings
   Branch 0 (Home):
@@ -25,7 +25,7 @@ ShellRoute (StatefulShellRoute.indexedStack) — bottom nav: Home / Search / Set
   Branch 1 (Search):
     /search                              — cross-list search
   Branch 2 (Settings):
-    /settings                            — household members, PIN reset
+    /settings                            — household members
 ```
 
 ### Packing → trip picker
@@ -51,19 +51,12 @@ route shape, so milestone 15 doesn't require re-plumbing navigation.
 All open via `showModalBottomSheet`, keeping the back stack limited to the
 routes above.
 
-## PIN gate strategy
+## PIN gate — removed post-launch
 
-- **Cold start**: a `GoRouter` top-level `redirect` checks an in-memory/
-  session "unlocked" flag. If unset, every route redirects to `/pin`
-  regardless of the deep link originally requested; on successful PIN entry,
-  redirect continues to the originally requested location.
-- **Re-lock on inactivity**: an `AppLifecycleListener` (or
-  `WidgetsBindingObserver`) records the timestamp when the app is
-  backgrounded (`AppLifecycleState.paused`/`inactive`). On resume, if the
-  elapsed time exceeds an inactivity threshold (TBD value, e.g. 5 minutes),
-  the "unlocked" flag is cleared before the redirect check runs, forcing
-  `/pin` again. Short backgrounding (e.g. switching to another app briefly)
-  does not force re-entry.
-- This is a design note for milestone 5 (authentication) to implement —
-  no PIN/auth code is written yet, since the Flutter project itself hasn't
-  been scaffolded (that's milestone 6).
+Milestone 5 originally built a PIN gate here (cold-start redirect to `/pin`
+plus an inactivity re-lock via `AppLifecycleListener`), but it was removed
+later at your request: it added friction without protecting anything, since
+Firestore's rules are already fully open for this private two-person app
+(decision #2) — the PIN only ever gated the local UI, not the data. The
+first-run gate is now just `/pick-member` (see the route table above),
+unconditionally.

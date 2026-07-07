@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Placeholder — household member management and PIN reset land in a
-/// later milestone.
+/// Placeholder — household member management lands in a later milestone.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 

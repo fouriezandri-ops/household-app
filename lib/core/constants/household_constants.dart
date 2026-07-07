@@ -1,6 +1,6 @@
 /// This app has exactly one household and exactly two members, and there's
-/// no auth to derive IDs from (decision #2 in CLAUDE.md — PIN only, no
-/// Firebase Auth). So the household and member IDs are fixed constants
+/// no auth to derive IDs from (decision #2 in CLAUDE.md — no auth at all,
+/// not even a PIN). So the household and member IDs are fixed constants
 /// rather than generated: every install of the app resolves to the same
 /// `/households/default` document and the same two `/users/{uid}` docs,
 /// with no pairing/invite step needed for both partners' phones to sync.

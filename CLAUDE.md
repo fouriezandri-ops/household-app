@@ -42,11 +42,18 @@ but today it's just for the two of us.
    items are text-only now (title, store, price, category, notes, etc.).
    Auto-fetching website preview images/favicons was already a deferred
    nice-to-have, not v1, and stays deferred.
-2. **Auth**: PIN/passcode only — **no real Firebase Auth**. This was a
-   deliberate, informed choice: it means Firestore security rules cannot
-   verify identity via `request.auth.uid`, so rules are open
-   (`allow read, write: if true`). This is acceptable for a private
-   two-person app but would need revisiting before any public release.
+2. **Auth**: ~~PIN/passcode only~~ — **removed entirely, post-launch.** No
+   real Firebase Auth either way, so Firestore security rules still can't
+   verify identity via `request.auth.uid` and stay open
+   (`allow read, write: if true`) — that part of the original reasoning is
+   unchanged. What changed: the local PIN gate (milestone 5) was dropped at
+   your request, since it only ever gated the app's local UI, not the data
+   — the Firestore rules were already fully open regardless of whether the
+   PIN was entered, so it added friction without actually protecting
+   anything for this private two-person list app. The only remaining gate
+   on first launch is picking "who it is" (`/pick-member`). This is
+   acceptable for a private two-person app but would need revisiting (real
+   auth, not just a device-local PIN) before any public release.
 3. **Bottom nav**: Home / Search / Settings tabs. The five lists are reached
    by tapping a card on the Home screen, not via five separate tabs (five tabs
    doesn't fit comfortably in a MD3 bottom bar). Open to revisiting if a
@@ -652,6 +659,16 @@ network policy blocks both), so several things had to happen outside it:
   with a phone's edge-swipe-back gesture). Both paths call the same
   `_confirmDelete`/`showMoveItemSheet` logic, so there's no duplicated
   behavior, just two triggers for it.
+- **PIN gate removed** (see decision #2): unnecessary friction for a
+  private two-person list app, and it never actually protected the data
+  anyway (Firestore's rules are open regardless of PIN state). Deleted
+  `lib/features/auth/` entirely (PIN hashing/storage, the gate screen,
+  keypad/dots widgets, the auth controller) and
+  `lib/core/lifecycle/inactivity_lock_observer.dart`; simplified the
+  go_router redirect in `app_router.dart` to only gate on member
+  selection, dropping the `/pin` route so `/pick-member` is now the first
+  screen unconditionally. Removed the now-unused `crypto` dependency
+  (`flutter_secure_storage` stays — member selection still uses it).
 
 ## Next step
 

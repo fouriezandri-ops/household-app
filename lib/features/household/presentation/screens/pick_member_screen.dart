@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/presentation/widgets/async_error_view.dart';
 import '../providers/current_member_provider.dart';
 
-/// Shown once, after the PIN gate, on a device that hasn't picked a
-/// household member yet. Renaming the seeded placeholder names/colors is a
-/// Settings feature for a later milestone.
+/// Shown once, on cold start, on a device that hasn't picked a household
+/// member yet — the app's only gate now that the PIN gate has been removed
+/// (see CLAUDE.md decision #2). Renaming the seeded placeholder names/colors
+/// is a Settings feature for a later milestone.
 class PickMemberScreen extends ConsumerWidget {
   const PickMemberScreen({super.key});
 
