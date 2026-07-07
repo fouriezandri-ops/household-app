@@ -52,7 +52,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Headphones'), findsOneWidget);
-    expect(find.textContaining('\$199.99'), findsOneWidget);
+    expect(find.textContaining('R199.99'), findsOneWidget);
     expect(find.textContaining('Amazon'), findsOneWidget);
   });
 
@@ -69,7 +69,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Product'), 'Headphones');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Price'), r'$19.99');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Price'), 'R19.99');
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();

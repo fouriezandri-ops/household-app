@@ -1,0 +1,18 @@
+{
+  "id": "REPLACE-WITH-A-SHORT-ID",
+  "displayLabel": "REPLACE-WITH-A-HUMAN-FRIENDLY-NAME",
+  "firebase": {
+    "apiKey": "REPLACE — Firebase console → Project settings → your app → apiKey",
+    "appId": "REPLACE — same screen, appId (looks like 1:123...:android:abc...)",
+    "messagingSenderId": "REPLACE — the number between the two colons in appId",
+    "projectId": "REPLACE — the Firebase project ID (not the project number)"
+  },
+  "household": {
+    "id": "default",
+    "name": "REPLACE-WITH-A-HOUSEHOLD-NAME",
+    "members": [
+      { "uid": "member-1", "displayName": "REPLACE", "colorTag": "#3A6351" },
+      { "uid": "member-2", "displayName": "REPLACE", "colorTag": "#8E5B3C" }
+    ]
+  }
+}

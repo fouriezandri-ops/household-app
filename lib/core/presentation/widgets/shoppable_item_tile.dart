@@ -15,7 +15,7 @@ class ShoppableItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final details = item.details;
     final subtitleParts = [
-      if (details.price != null) '\$${details.price!.toStringAsFixed(2)}',
+      if (details.price != null) 'R${details.price!.toStringAsFixed(2)}',
       if (details.store != null) details.store!,
       if (details.desiredQuantity != null && details.desiredQuantity != 1)
         'Qty ${details.desiredQuantity}',

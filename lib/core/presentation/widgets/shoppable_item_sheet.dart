@@ -206,7 +206,7 @@ class _ShoppableItemSheetState extends ConsumerState<ShoppableItemSheet> {
                   Expanded(
                     child: TextFormField(
                       controller: _priceController,
-                      decoration: const InputDecoration(labelText: 'Price', prefixText: r'$ '),
+                      decoration: const InputDecoration(labelText: 'Price', prefixText: 'R '),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) return null;

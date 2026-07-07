@@ -55,7 +55,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Espresso machine'), findsOneWidget);
-    expect(find.textContaining('\$450.00'), findsOneWidget);
+    expect(find.textContaining('R450.00'), findsOneWidget);
     expect(find.textContaining('Williams Sonoma'), findsOneWidget);
   });
 

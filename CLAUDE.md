@@ -669,6 +669,43 @@ network policy blocks both), so several things had to happen outside it:
   selection, dropping the `/pin` route so `/pick-member` is now the first
   screen unconditionally. Removed the now-unused `crypto` dependency
   (`flutter_secure_storage` stays — member selection still uses it).
+- **Currency switched to ZAR**: the Price field (Products to Buy/Wishlist)
+  and its display on item tiles used a hardcoded `$` — changed to `R`
+  (`ShoppableItemSheet`'s price field prefix, `ShoppableItemTile`'s
+  subtitle) since pricing is in South African Rand, not USD.
+
+## Sharing with other households
+
+The app was originally built around exactly one household — a single fixed
+Firebase project and hardcoded member names. To let other households use
+their own copy with their own isolated data (not sharing this household's
+Firestore project, which would just merge everyone into one set of lists),
+the previously hand-edited `lib/firebase_options.dart` and
+`lib/core/constants/household_constants.dart` are now **generated** from a
+per-household JSON profile:
+
+- `household_profiles/<id>.json` — one file per household: their Firebase
+  project config, household name, and member names/colors.
+  `household_profiles/_example.json` is the template for adding a new one;
+  `household_profiles/README.md` has the full onboarding steps (create
+  their own Firebase project, copy the example, deploy rules, push).
+- `tool/apply_household_profile.dart` — `dart run tool/apply_household_profile.dart
+  household_profiles/<id>.json` regenerates the two files above from a
+  profile. Both stay committed (currently matching `zandri-renier.json`,
+  this household's profile) so `flutter run`/`flutter analyze`/
+  `flutter test` keep working without running the tool first.
+- `.github/workflows/build-apk.yml` now has two jobs: `discover-profiles`
+  (lists every `household_profiles/*.json` except `_example.json`) feeding
+  a `build` matrix that applies each profile and runs `flutter build apk`
+  once per household, uploading a separately-named artifact
+  (`household-app-release-apk-<id>`) per household. One push now updates
+  every household's app at once — no per-household branch/fork to keep in
+  sync.
+
+Deliberately out of scope for now: per-household app display name/icon
+(the launcher label and `MaterialApp.title` stay the generic "Household"
+for every build) and iOS support — neither blocks a household from having
+fully isolated data, which was the actual goal.
 
 ## Next step
 

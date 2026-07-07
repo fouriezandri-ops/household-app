@@ -1,0 +1,18 @@
+{
+  "id": "zandri-renier",
+  "displayLabel": "Zandri & Renier",
+  "firebase": {
+    "apiKey": "AIzaSyAAQoGUtnpqoJS2u5WxGKSjZKOzojmXrXw",
+    "appId": "1:726684429457:android:e7d82ad22f6e53dec96330",
+    "messagingSenderId": "726684429457",
+    "projectId": "household-app-c121a"
+  },
+  "household": {
+    "id": "default",
+    "name": "Our Household",
+    "members": [
+      { "uid": "member-1", "displayName": "Zandri", "colorTag": "#3A6351" },
+      { "uid": "member-2", "displayName": "Renier", "colorTag": "#8E5B3C" }
+    ]
+  }
+}

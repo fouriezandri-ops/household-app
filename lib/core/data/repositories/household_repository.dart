@@ -38,7 +38,7 @@ class HouseholdRepository {
       await householdDoc.set(
         Household(
           id: householdId,
-          name: 'Our Household',
+          name: defaultHouseholdName,
           memberUids: defaultMemberSeeds.map((seed) => seed.uid).toList(),
           createdAt: DateTime.now(),
         ),
